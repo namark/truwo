@@ -5,7 +5,7 @@ override CPPFLAGS	+= $(shell cat .cxxflags | xargs)
 override CPPFLAGS	+= -I./include
 override LDFLAGS	+= $(shell cat .ldflags | xargs)
 override LDFLAGS	+= -L./lib
-override LDLIBS		+= -lSDL2main -lSDL2 -lpthread -lGL -lGLEW
+override LDLIBS		+= -lSDL2main -lSDL2 -lpthread
 
 NAME := melno
 
