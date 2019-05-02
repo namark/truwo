@@ -3,7 +3,7 @@
 Required software:
 1. git and GNU stuff (make, coreutils, findutils, binutils)
 2. C++ 17 compliant compiler
-3. SDL 2.0.0
+3. SDL 2.0
 
 ### Ubuntu / Debian
 
@@ -24,8 +24,6 @@ sudo apt install g++-7 -y
 sudo apt install libsdl2-2.0
 sudo apt install libsdl2-dev
 ```
-
-Steps tested on: Ubuntu 14.04, 16.04, 18.04
 
 # Troubleshooting
 
