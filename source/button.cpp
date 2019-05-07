@@ -1,7 +1,7 @@
 #include "button.h"
 
 button::button(range2D bounds) :
-	bounds(bounds),
+	movable_bounds(bounds),
 	current(state::idle)
 { }
 

@@ -22,15 +22,12 @@ void highlight(const graphical::surface& target, graphical::color color, range2D
 {
 	std::visit([&](auto writer)
 	{
-		bounds = support::intersection<int2>(bounds, rect{target.size()});
 		int2 i = bounds.lower();
-		for(; i < bounds.upper(); i.y() += sparsity.y())
+		auto dimension = i.begin();
+		while(dimension != i.end())
 		{
-			for(; i < bounds.upper(); i.x() += sparsity.x())
-			{
-				writer.set(static_cast<uint32_t>((color)), i);
-			}
-			i.x() = bounds.lower().x() + (i.y()%sparsity.x());
+			writer.set(static_cast<uint32_t>((color)), i);
+			dimension = support::advance_vector(i, bounds.lower(), bounds.upper(), sparsity);
 		}
 	}, target.pixels());
 }

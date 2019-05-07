@@ -5,6 +5,8 @@
 
 #include "simple.hpp"
 #include "plain_button.h"
+#include "layout.h"
+#include "digits.h"
 
 int main(int argc, const char** argv) try
 {
@@ -56,6 +58,37 @@ int main(int argc, const char** argv) try
 		device->play();
 	});
 
+	std::vector<plain_button> boxes;
+	for(int i = 0; i < 16; ++i)
+		boxes.emplace_back(fg_color, range2D{int2::zero(), int2::one(i%3?20:30)});
+
+	std::vector<bitmap<digit_data::size.x(), digit_data::size.y()>> digs;
+		for(int i = 0; i < 10; ++i)
+			digs.emplace_back(digit[i], fg_color, range2D{int2::zero(), int2(30,50)});
+
+
+	std::vector<bounds_layout> layouts;
+	for(int i = 0; i < 4; ++i)
+	{
+		bounds_layout test_layout(int2::i(5));
+		test_layout.elements.push_back(&boxes[i*4]);
+		test_layout.elements.push_back(&boxes[i*4 + 1]);
+		test_layout.elements.push_back(&boxes[i*4 + 2]);
+		test_layout.elements.push_back(&boxes[i*4 + 3]);
+		test_layout.update();
+		layouts.push_back(test_layout);
+	};
+	bounds_layout digit_layout(int2::i(3));
+	for(auto&& dig : digs)
+		digit_layout.elements.push_back(&dig);
+	digit_layout.update();
+	layouts.push_back(digit_layout);
+
+	bounds_layout main_layout(int2::j(5));
+	for(auto&& layout : layouts)
+		main_layout.elements.push_back(&layout);
+	main_layout.update();
+
 	bool done = false;
 	while(!done)
 	{
@@ -78,6 +111,8 @@ int main(int argc, const char** argv) try
 
 			for(auto&& button : buttons)
 				button->update(*event);
+			for(auto&& box : boxes)
+				box.update(*event);
 		}
 
 		if(!music_playing && buttons.front()->current_state() == button::state::disabed)
@@ -85,10 +120,16 @@ int main(int argc, const char** argv) try
 			device = nullptr;
 			buttons.front()->enable();
 		}
-		graphical::fill(win.surface(), bg_color);
+		fill(win.surface(), bg_color);
 
 		for(auto&& button : buttons)
 			button->draw(win.surface());
+
+		for(auto&& box : boxes)
+			box.draw(win.surface());
+
+		for(auto&& dig : digs)
+			dig.draw(win.surface());
 
 		win.update();
 

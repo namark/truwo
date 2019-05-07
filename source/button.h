@@ -1,10 +1,10 @@
 #ifndef BUTTON_H
 #define BUTTON_H
-#include "simple.hpp"
+#include "implementaion.h"
 #include <functional>
 #include <vector>
 
-class button
+class button : public movable_bounds
 {
 	public:
 	enum class state
@@ -31,7 +31,6 @@ class button
 	std::vector<callback> on_click;
 
 	protected:
-	range2D bounds;
 	state current;
 };
 
