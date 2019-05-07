@@ -4,7 +4,7 @@
 #include <functional>
 #include <vector>
 
-class button : public movable_bounds
+class button : public movable_bounds, public i_graphic, public i_interactive
 {
 	public:
 	enum class state
@@ -18,9 +18,7 @@ class button : public movable_bounds
 	button(range2D bounds);
 	virtual ~button() = default;
 
-	virtual void draw(const graphical::surface&) = 0;
-
-	void update(interactive::event) noexcept;
+	void update(interactive::event) noexcept override;
 
 	state current_state() const noexcept;
 

@@ -1,6 +1,8 @@
 #ifndef INTERFACE_HPP
 #define INTERFACE_HPP
 
+#include "simple.hpp"
+
 template <typename Offset>
 class i_movable
 {
@@ -25,6 +27,22 @@ class i_movable_bounds : public i_bounds<T>, public i_movable<T>
 {
 	protected:
 	~i_movable_bounds() = default;
+};
+
+class i_graphic
+{
+	protected:
+	~i_graphic() = default;
+	public:
+	virtual void draw(const graphical::surface&) = 0;
+};
+
+class i_interactive
+{
+	protected:
+	~i_interactive() = default;
+	public:
+	virtual void update(interactive::event) = 0;
 };
 
 #endif /* end of include guard */
