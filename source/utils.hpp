@@ -1,0 +1,109 @@
+#ifndef UTILS_HPP
+#define UTILS_HPP
+
+#include <limits>
+#include <type_traits>
+#include <iterator>
+
+// this was really hard :/
+template <typename Range>
+class loop
+{
+	public:
+	using iterator = decltype(std::begin(std::declval<Range>()));
+	using difference_type = typename std::iterator_traits<iterator>::difference_type;
+	using value_type = typename std::iterator_traits<iterator>::value_type;
+	using pointer = typename std::iterator_traits<iterator>::pointer;
+	using reference = typename std::iterator_traits<iterator>::reference;
+	using iterator_category = typename std::iterator_traits<iterator>::iterator_category;
+
+	constexpr loop(Range range, iterator current) :
+		range(range), current(current)
+	{ }
+
+	constexpr loop(Range range) :
+		range(range), current(std::begin(range))
+	{ }
+
+	constexpr auto operator*() const
+	{ return *current; }
+	constexpr auto operator->() const
+	{ return current.operator->(); }
+	constexpr auto operator*()
+	{ return *current; }
+	constexpr auto operator->()
+	{ return current.operator->(); }
+
+	constexpr loop& operator++()
+	{
+		++current;
+		if(current == std::end(range))
+			current = std::begin(range);
+		return *this;
+	}
+
+	constexpr loop operator++(int)
+	{
+		loop ret = loop(range, current++);
+		if(current == std::end(range))
+			current = std::begin(range);
+		return ret;
+	}
+
+	constexpr loop& operator+=(difference_type d)
+	{
+		const iterator begin = std::begin(range);
+		const iterator end = std::end(range);
+		const difference_type size = std::distance(begin, end);
+		const difference_type current_index = std::distance(begin, current);
+		current = begin + (((current_index + d) % size) + size) % size; // wrap
+		return *this;
+	}
+	constexpr loop& operator-=(difference_type d)
+	{
+		return *this += -d;
+	}
+
+	constexpr friend loop operator+(const loop& one, difference_type d)
+	{
+		return loop(one) += d;
+	}
+	constexpr friend loop operator+(difference_type d, const loop& one)
+	{
+		return loop(one) += d;
+	}
+
+	constexpr friend loop operator-(const loop& one, difference_type d)
+	{
+		return loop(one) -= d;
+	}
+	constexpr friend loop operator-(difference_type d, const loop& one)
+	{
+		return loop(one) -= d;
+	}
+
+	constexpr friend bool operator==(const loop& one, const loop& other)
+	{
+		return one.range == other.range && one.current == other.current;
+	}
+	constexpr friend bool operator!=(const loop& one, const loop& other)
+	{
+		return !(one == other);
+	}
+
+	constexpr operator iterator()
+	{
+		return current;
+	}
+
+	constexpr void reset()
+	{
+		current = std::begin(range);
+	}
+
+	private:
+	Range range;
+	iterator current;
+};
+
+#endif /* end of include guard */
