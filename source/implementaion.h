@@ -6,16 +6,19 @@
 
 class movable_bounds : public i_movable_bounds<int2>
 {
-
-	protected:
-	range2D bounds;
-
 	public:
 	movable_bounds(range2D bounds);
 
 	int2 lower() const override;
 	int2 upper() const override;
 	movable_bounds& operator+=(const int2& offset) override;
+
+	virtual ~movable_bounds() = default;
+
+	protected:
+	movable_bounds(const movable_bounds&) = default;
+	movable_bounds& operator=(const movable_bounds&) = default;
+	range2D bounds;
 
 };
 
