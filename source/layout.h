@@ -20,7 +20,7 @@ int2 select_corner(const Range& rng, int2 direction) noexcept
 }
 
 template <typename ForwardItr>
-void layout_bounds(ForwardItr begin, ForwardItr end, const int2& spacing) noexcept
+constexpr void layout_bounds(ForwardItr begin, ForwardItr end, const int2& spacing)
 {
 	const auto mask = int2(spacing != int2::zero());
 	const auto corner = signum(spacing);
@@ -33,6 +33,14 @@ void layout_bounds(ForwardItr begin, ForwardItr end, const int2& spacing) noexce
 			- select_corner(*begin, -corner)
 		) * mask;
 	}
+}
+
+template <typename Range>
+constexpr void layout_bounds(Range range, const int2& spacing)
+{
+	using std::begin;
+	using std::end;
+	layout_bounds(begin(range), end(range), spacing);
 }
 
 class bounds_layout : public movable_bounds
