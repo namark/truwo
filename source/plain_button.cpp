@@ -20,6 +20,11 @@ void outline(const graphical::surface& target, graphical::color color, range2D b
 
 void highlight(const graphical::surface& target, graphical::color color, range2D bounds, int2 sparsity = int2(2,1))
 {
+	range2D target_bounds = rect{target.size()};
+	bounds = intersection(bounds, target_bounds);
+	if(!bounds.valid())
+		return;
+
 	std::visit([&](auto writer)
 	{
 		int2 i = bounds.lower();
