@@ -39,8 +39,8 @@ int main(int argc, const char** argv) try
 	using music_device = musical::device_with_callback<decltype(player)>;
 	std::unique_ptr<music_device> device = nullptr;
 
-	auto& play_button = ui.make<plain_button>(fg_color, anchored_rect{win.size()/10, win.size()/2, float2::one(0.5f)});
-	play_button.on_click.push_back([&](button& button)
+	auto& up_button = ui.make<plain_button>(fg_color, rect{win.size()/10});
+	up_button.on_click.push_back([&](button& button)
 	{
 		if(!music || music_playing)
 			return;
@@ -53,18 +53,23 @@ int main(int argc, const char** argv) try
 		device->play();
 	});
 
-	auto& stop_button = ui.make<plain_button>(fg_color, anchored_rect{win.size()/10, win.size()/2, float2::one(0.5f)});
+	auto& stop_button = ui.make<plain_button>(fg_color, anchored_rect{win.size()/10, int2::zero(), float2::one(0.5)});
 	stop_button.on_click.push_back([&](button&)
 	{
 		if(music_playing)
 		{
 			music_playing = false;
-			play_button.enable();
+			up_button.enable();
 			device = nullptr;
 		}
 	});
 
-	bounds_layout ({&play_button, &stop_button}, int2::j(5)).update();
+	auto& down_button = ui.make<plain_button>(fg_color, anchored_rect{win.size()/10, int2::zero(), float2::one(0.5)});
+	down_button.on_click.push_back([&](button&)
+	{
+	});
+
+	bounds_layout ({&up_button, &stop_button, &down_button}, int2::j(5)).update();
 
 	bool done = false;
 	while(!done)
