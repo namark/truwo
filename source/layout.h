@@ -47,7 +47,7 @@ class bounds_layout : public movable_bounds
 {
 	public:
 	static const range2D invalid_bounds;
-	using container = std::vector<i_movable_bounds<int2>*> ;
+	using container = std::vector<i_movable_bounds<int2>*>;
 	container elements;
 	int2 spacing;
 
