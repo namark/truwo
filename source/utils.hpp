@@ -1,9 +1,12 @@
 #ifndef UTILS_HPP
 #define UTILS_HPP
 
+#include <cstddef>
 #include <limits>
 #include <type_traits>
 #include <iterator>
+
+#include "simple/support/algorithm.hpp"
 
 // this was really hard :/
 template <typename Range>
@@ -56,7 +59,7 @@ class loop
 		const iterator end = std::end(range);
 		const difference_type size = std::distance(begin, end);
 		const difference_type current_index = std::distance(begin, current);
-		current = begin + (((current_index + d) % size) + size) % size; // wrap
+		current = begin + simple::support::wrap((current_index + d) % size, size);
 		return *this;
 	}
 	constexpr loop& operator-=(difference_type d)
@@ -105,5 +108,22 @@ class loop
 	Range range;
 	iterator current;
 };
+
+class random_access_istream_iterator // more or less
+{
+	// TODO:
+};
+
+template <typename Range>
+constexpr auto center(const Range& area)
+{
+	return (area.upper() - area.lower())/2;
+}
+
+template <typename Object, typename Area>
+constexpr auto center(const Object& object, const Area& area)
+{
+	return center(area) - center(object);
+}
 
 #endif /* end of include guard */
