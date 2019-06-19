@@ -20,6 +20,14 @@ int main(int argc, const char** argv) try
 	auto fg_color = win.surface().format().color(main_color);
 	auto bg_color = win.surface().format().color(0x0_rgb);
 
+	rect button_rect{win.size()/8 + int2{5,5}};
+	auto make_control_button = [&](auto callback) -> auto&
+	{
+		auto& button = ui.make<plain_button>(fg_color, button_rect);
+		button.on_click.push_back(callback);
+		return button;
+	};
+
 	std::atomic<bool> music_playing = false;
 	auto player = [&music_playing, &music, i = loop(music->buffer())](auto& device, auto buffer) mutable
 	{
@@ -39,8 +47,45 @@ int main(int argc, const char** argv) try
 	using music_device = musical::device_with_callback<decltype(player)>;
 	std::unique_ptr<music_device> device = nullptr;
 
-	auto& up_button = ui.make<plain_button>(fg_color, rect{win.size()/10});
-	up_button.on_click.push_back([&](button& button)
+	rect digit_rect{{40,100}};
+	rect separator_rect{{13,100}};
+	bounds_layout hour_layout(
+		{
+			&ui.make<digit_bitmap>(digit[0], fg_color, digit_rect),
+			&ui.make<digit_bitmap>(digit[0], fg_color, digit_rect),
+		},
+		int2::i(5)
+	);
+	hour_layout.update();
+	bounds_layout minute_layout(
+		{
+			&ui.make<digit_bitmap>(digit[0], fg_color, digit_rect),
+			&ui.make<digit_bitmap>(digit[0], fg_color, digit_rect),
+		},
+		int2::i(5)
+	);
+	minute_layout.update();
+	bounds_layout second_layout(
+		{
+			&ui.make<digit_bitmap>(digit[0], fg_color, digit_rect),
+			&ui.make<digit_bitmap>(digit[0], fg_color, digit_rect),
+		},
+		int2::i(5)
+	);
+	second_layout.update();
+	bounds_layout timer_layout(
+		{
+			&hour_layout,
+			&ui.make<digit_bitmap>(digit[10], fg_color, separator_rect),
+			&minute_layout,
+			&ui.make<digit_bitmap>(digit[10], fg_color, separator_rect),
+			&second_layout
+		},
+		int2::i(5)
+	);
+	timer_layout.update();
+
+	auto& up_button = make_control_button( [&](button& button)
 	{
 		if(!music || music_playing)
 			return;
@@ -53,8 +98,7 @@ int main(int argc, const char** argv) try
 		device->play();
 	});
 
-	auto& stop_button = ui.make<plain_button>(fg_color, anchored_rect{win.size()/10, int2::zero(), float2::one(0.5)});
-	stop_button.on_click.push_back([&](button&)
+	auto& stop_button = make_control_button( [&](button&)
 	{
 		if(music_playing)
 		{
@@ -64,12 +108,18 @@ int main(int argc, const char** argv) try
 		}
 	});
 
-	auto& down_button = ui.make<plain_button>(fg_color, anchored_rect{win.size()/10, int2::zero(), float2::one(0.5)});
-	down_button.on_click.push_back([&](button&)
+	auto& down_button = make_control_button([&](button&)
 	{
 	});
 
-	bounds_layout ({&up_button, &stop_button, &down_button}, int2::j(5)).update();
+	bounds_layout button_layout ({&up_button, &stop_button, &down_button}, int2::j(5));
+	button_layout.update();
+	button_layout += int2::j() * center(button_layout, timer_layout);
+
+	bounds_layout main_layout({&timer_layout, &button_layout}, int2::i(15));
+	main_layout.update();
+
+	main_layout += center(main_layout, range2D{int2::zero(), win.size()});
 
 	bool done = false;
 	while(!done)
