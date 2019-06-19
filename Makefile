@@ -7,20 +7,24 @@ override LDFLAGS	+= $(shell cat .ldflags | xargs)
 override LDFLAGS	+= -L./lib
 override LDLIBS		+= -lSDL2main -lSDL2 -lpthread
 
+PREFIX	:= $(DESTDIR)/usr/local
+BINDIR	:= $(PREFIX)/bin
+
 NAME := melno
 
 SRCDIR	:= source
 TEMPDIR	:= temp
 DISTDIR	:= out
 SOURCES	:= $(wildcard $(SRCDIR)/*.cpp)
-TARGET	:= $(DISTDIR)/$(NAME)
+OUT		:= $(DISTDIR)/$(NAME)
+TARGET	:= $(OUT:$(DISTDIR)/%=$(BINDIR)/%)
 OBJECTS	:= $(SOURCES:%.cpp=$(TEMPDIR)/%.o)
 LOCALIB	:= $(wildcard lib/*.a)
 DEPENDS	:= $(OBJECTS:.o=.d)
 
-build: $(TARGET)
+build: $(OUT)
 
-$(TARGET): $(OBJECTS) $(LOCALIB) | $(DISTDIR)
+$(OUT): $(OBJECTS) $(LOCALIB) | $(DISTDIR)
 	$(CXX) $(LDFLAGS) $(OBJECTS) $(LOCALIB) $(LDLIBS) -o $@
 
 $(TEMPDIR)/%.o: %.cpp | $(TEMPDIR)
@@ -40,11 +44,25 @@ clean:
 	@echo Temporaries cleaned!
 
 distclean: clean
-	@rm $(TARGET) 2> /dev/null || true
+	@rm $(OUT) 2> /dev/null || true
 	@rmdir -p $(DISTDIR) 2> /dev/null || true
 	@echo All clean!
+
+install: $(TARGET)
+
+$(BINDIR)/%: $(DISTDIR)/% | $(BINDIR)
+	install --strip $< $@
+
+$(BINDIR):
+	@mkdir $@
+
+uninstall:
+	-rm $(TARGET)
+	@rmdir -p $(BINDIR) 2> /dev/null || true
+	@echo Uninstall complete!
+
 
 -include $(DEPENDS)
 
 .PRECIOUS : $(OBJECTS)
-.PHONY : clean distclean
+.PHONY : clean distclean uninstall
