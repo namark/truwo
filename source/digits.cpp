@@ -1,6 +1,6 @@
 #include "digits.h"
 
-const std::array<digit_data, 10> digit =
+const std::array<digit_data, digit_count> digit =
 {
 	// 0
 	digit_data::bitset{"\
@@ -81,5 +81,13 @@ const std::array<digit_data, 10> digit =
 111\
 001\
 011\
+"},
+	// :
+	digit_data::bitset{"\
+000\
+010\
+000\
+010\
+000\
 "},
 };
