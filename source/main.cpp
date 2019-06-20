@@ -8,6 +8,7 @@
 #include "digits.h"
 #include "ui_factory.hpp"
 #include "utils.hpp"
+#include "time_display.h"
 
 int main(int argc, const char** argv) try
 {
@@ -26,6 +27,14 @@ int main(int argc, const char** argv) try
 		auto& button = ui.make<plain_button>(fg_color, button_rect);
 		button.on_click.push_back(callback);
 		return button;
+	};
+
+	int2 digit_size{40,100};
+	auto digit_spacing = int2::i(5);
+	auto make_time_display = [&]() -> auto&
+	{
+		auto& display = ui.make<time_display>(digit_size, digit_spacing, fg_color);
+		return display;
 	};
 
 	std::atomic<bool> music_playing = false;
@@ -47,45 +56,20 @@ int main(int argc, const char** argv) try
 	using music_device = musical::device_with_callback<decltype(player)>;
 	std::unique_ptr<music_device> device = nullptr;
 
-	rect digit_rect{{40,100}};
 	rect separator_rect{{13,100}};
-	bounds_layout hour_layout(
-		{
-			&ui.make<digit_bitmap>(digit[0], fg_color, digit_rect),
-			&ui.make<digit_bitmap>(digit[0], fg_color, digit_rect),
-		},
-		int2::i(5)
-	);
-	hour_layout.update();
-	bounds_layout minute_layout(
-		{
-			&ui.make<digit_bitmap>(digit[0], fg_color, digit_rect),
-			&ui.make<digit_bitmap>(digit[0], fg_color, digit_rect),
-		},
-		int2::i(5)
-	);
-	minute_layout.update();
-	bounds_layout second_layout(
-		{
-			&ui.make<digit_bitmap>(digit[0], fg_color, digit_rect),
-			&ui.make<digit_bitmap>(digit[0], fg_color, digit_rect),
-		},
-		int2::i(5)
-	);
-	second_layout.update();
 	bounds_layout timer_layout(
 		{
-			&hour_layout,
+			&make_time_display(),
 			&ui.make<digit_bitmap>(digit[10], fg_color, separator_rect),
-			&minute_layout,
+			&make_time_display(),
 			&ui.make<digit_bitmap>(digit[10], fg_color, separator_rect),
-			&second_layout
+			&make_time_display()
 		},
 		int2::i(5)
 	);
 	timer_layout.update();
 
-	auto& up_button = make_control_button( [&](button& button)
+	auto& up_button = make_control_button( [&](ui_element& button)
 	{
 		if(!music || music_playing)
 			return;
@@ -98,7 +82,7 @@ int main(int argc, const char** argv) try
 		device->play();
 	});
 
-	auto& stop_button = make_control_button( [&](button&)
+	auto& stop_button = make_control_button( [&](ui_element&)
 	{
 		if(music_playing)
 		{
@@ -108,7 +92,7 @@ int main(int argc, const char** argv) try
 		}
 	});
 
-	auto& down_button = make_control_button([&](button&)
+	auto& down_button = make_control_button([&](ui_element&)
 	{
 	});
 

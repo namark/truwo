@@ -9,7 +9,7 @@
 
 class ui_factory
 {
-	std::vector<std::unique_ptr<movable_bounds>> elements;
+	std::vector<std::unique_ptr<i_ui_object>> elements;
 	std::vector<i_graphic*> _graphics;
 	std::vector<i_interactive*> _interactives;
 

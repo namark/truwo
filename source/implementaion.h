@@ -1,6 +1,8 @@
 #ifndef IMPLEMENTAION_HPP
 #define IMPLEMENTAION_HPP
 
+#include <functional>
+#include <vector>
 #include "interface.hpp"
 #include "simple.hpp"
 
@@ -22,5 +24,54 @@ class movable_bounds : public i_movable_bounds<int2>
 
 };
 
+class ui_element : public i_interactive_focusable
+{
+	public:
+	enum class state
+	{
+		idle,
+		pressed,
+		hover,
+		disabled
+	};
+
+	virtual ~ui_element() = default;
+
+	void update(interactive::event) noexcept override;
+
+	state current_state() const noexcept;
+
+	void disable(bool = true) noexcept;
+	void enable(bool = true) noexcept;
+
+	using callback = std::function<void(ui_element&)>;
+	std::vector<callback> on_click;
+	std::vector<callback> on_press;
+
+	void focus(bool) noexcept override;
+	bool focus() const noexcept override;
+
+	protected:
+	explicit ui_element(const i_bounds<int2>&);
+
+	private:
+	const i_bounds<int2>& bounds_proxy;
+	state current;
+	bool _focus;
+};
+
+class focus_group
+{
+	public:
+	using container = std::vector<i_focusable*>;
+	container elements;
+	void focus();
+	void drop_focus();
+	void focus(size_t index);
+	void focus(i_focusable*);
+
+	private:
+	i_focusable* focused_element = nullptr;
+};
 
 #endif /* end of include guard */

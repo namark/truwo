@@ -45,4 +45,25 @@ class i_interactive
 	virtual void update(interactive::event) = 0;
 };
 
+class i_focusable
+{
+	protected:
+	~i_focusable() = default;
+	public:
+	virtual void focus(bool) = 0;
+	virtual bool focus() const = 0;
+};
+
+class i_interactive_focusable : public i_interactive, public i_focusable
+{
+	protected:
+	~i_interactive_focusable() = default;
+};
+
+class i_ui_object
+{
+	public:
+	virtual ~i_ui_object() = default;
+};
+
 #endif /* end of include guard */

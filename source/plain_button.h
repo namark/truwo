@@ -1,6 +1,10 @@
-#include "button.h"
+#include "implementaion.h"
 
-class plain_button : public button
+class plain_button :
+	public movable_bounds,
+	public ui_element,
+	public i_graphic,
+	public i_ui_object
 {
 	public:
 	explicit plain_button(const plain_button&) = default;

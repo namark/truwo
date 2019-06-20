@@ -19,6 +19,8 @@ using graphical::anchored_rect;
 using graphical::rgb_pixel;
 using graphical::rgb_vector;
 using range2D = rect::range;
+using simple::support::rational;
+using ratio2 = rational<int2>;
 
 class initializer
 {
