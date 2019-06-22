@@ -81,7 +81,11 @@ auto ui_element::current_state() const noexcept -> state
 
 void ui_element::disable(bool value) noexcept
 {
-	current = value ? state::disabled : state::idle;
+	if(value && current != state::disabled)
+		current = state::disabled;
+	else
+	if(!value && current == state::disabled)
+		current = state::idle;
 }
 
 void ui_element::enable(bool value) noexcept
