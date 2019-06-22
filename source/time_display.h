@@ -13,19 +13,13 @@ class time_display :
 	public i_ui_object
 {
 	public:
-	enum class state
-	{
-		normal,
-		input,
-		hover,
-		disabled
-	};
+	using duration = std::chrono::steady_clock::duration;
 
 	time_display(int2 digit_size, int2 digit_spacing, graphical::color color);
 	virtual ~time_display() = default;
 
 	template<typename Type>
-	std::chrono::milliseconds set(std::chrono::milliseconds);
+	duration set(duration);
 
 	time_display& operator+=(const int2&) override;
 	int2 lower() const override;
