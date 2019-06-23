@@ -1,12 +1,12 @@
-// TODO: raise window when timer triggers
 // TODO: focus behavior and time input
-// TODO: progress bar at the bottom
+// TODO: progress bar at the bottom ( flashes when done )
 // TODO: topbar with recent set timers, with option to pin, displays mini ui(set time and progress bar)
 // TODO: resizable window
 // TODO: full set of command line parameters (set time, autostart, loop, bg/fg color, window size/position, gui on/off, etc.)
 // TODO: run several timers at the same time
 // TODO: allow separate alarm sounds per timer, and mix the audio
 // TODO: more alarm settings with a visualization (alarm duration, included or excluded from next timer loop)
+// TODO: android version
 #include <atomic>
 #include <cstdio>
 #include <cerrno>
@@ -158,6 +158,7 @@ int main(int argc, const char** argv) try
 			if(music && !music_playing)
 			{
 				music_playing = true;
+				win.restore();
 				device = std::make_unique<music_device>(
 					musical::basic_device_parameters{music->obtained()},
 					player
