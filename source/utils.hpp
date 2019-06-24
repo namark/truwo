@@ -7,6 +7,7 @@
 #include <iterator>
 
 #include "simple/support/algorithm.hpp"
+#include "simple.hpp"
 
 // this was really hard :/
 template <typename Range>
@@ -125,5 +126,9 @@ constexpr auto center(const Object& object, const Area& area)
 {
 	return center(area) - center(object);
 }
+
+void outline(const graphical::surface&, graphical::color, range2D);
+
+void highlight(const graphical::surface&, graphical::color, range2D, int2 sparsity = int2(2,1));
 
 #endif /* end of include guard */
