@@ -29,13 +29,13 @@ bool contains(const i_bounds<int2>& bounds, int2 point)
 	return bounds.lower() < point && point < bounds.upper();
 };
 
-void ui_element::update(interactive::event event) noexcept
+void ui_element::update(const interactive::event& event) noexcept
 {
 	if(state::disabled == current)
 		return;
 
 	std::visit(support::overloaded{
-		[this](interactive::mouse_down mouse)
+		[this](const interactive::mouse_down& mouse)
 		{
 			if(contains(bounds_proxy, mouse.data.position))
 			{
@@ -44,7 +44,7 @@ void ui_element::update(interactive::event event) noexcept
 					callback(*this);
 			}
 		},
-		[this](interactive::mouse_up mouse)
+		[this](const interactive::mouse_up& mouse)
 		{
 			if(state::pressed == current)
 			{
@@ -57,7 +57,7 @@ void ui_element::update(interactive::event event) noexcept
 				}
 			}
 		},
-		[this](interactive::mouse_motion mouse)
+		[this](const interactive::mouse_motion& mouse)
 		{
 			if(contains(bounds_proxy, mouse.data.position))
 			{
@@ -126,5 +126,27 @@ void focus_group::focus(size_t index)
 
 void focus_group::focus(i_focusable* element)
 {
+	expecting_focus = false;
 	focus(find(elements.begin(), elements.end(), element) - elements.begin());
 }
+
+void focus_group::pre_update(const interactive::event& event)
+{
+	std::visit(support::overloaded{
+		[this](const interactive::mouse_down&)
+		{
+			expecting_focus = true;
+		},
+		[](auto&&){}
+	}, event);
+}
+
+void focus_group::post_update(const interactive::event&)
+{
+	if(expecting_focus)
+	{
+		expecting_focus = false;
+		drop_focus();
+	}
+}
+

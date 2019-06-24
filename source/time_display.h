@@ -26,10 +26,20 @@ class time_display :
 	int2 upper() const override;
 
 	void draw(const graphical::surface&) override;
+	void update(const interactive::event& event) noexcept override;
+
+	void focus(bool) noexcept override;
+
+	using callback = std::function<void(time_display&, int old_value, int new_value)>;
+	std::vector<callback> on_input;
 
 	private:
+	graphical::color color;
 	std::array<digit_bitmap, 2> digits;
 	bounds_layout layout;
+	int set_value;
+	int input_value;
+	bool input;
 };
 
 #endif /* end of include guard */

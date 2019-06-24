@@ -42,7 +42,7 @@ class i_interactive
 	protected:
 	~i_interactive() = default;
 	public:
-	virtual void update(interactive::event) = 0;
+	virtual void update(const interactive::event&) = 0;
 };
 
 class i_focusable

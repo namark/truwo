@@ -1,4 +1,4 @@
-// TODO: focus behavior and time input
+// TODO: button focus, TAB SHIFT+TAB to change focus
 // TODO: progress bar at the bottom ( flashes when done )
 // TODO: topbar with recent set timers, with option to pin, displays mini ui(set time and progress bar)
 // TODO: resizable window
@@ -25,7 +25,9 @@ int main(int argc, const char** argv) try
 	initializer init;
 	ui_factory ui;
 
-	auto music = argc > 1 ? std::optional<musical::wav>(argv[1]) : std::nullopt;
+	auto music = argc > 1
+		?  argv[1][0] != '\0' ? std::optional<musical::wav>(argv[1]) : std::nullopt
+		: std::optional<musical::wav>("./melno.wav");
 
 	graphical::software_window win("melno", {400,200});
 	auto fg_color = win.surface().format().color(main_color);
@@ -87,6 +89,44 @@ int main(int argc, const char** argv) try
 	);
 	timer_layout.update();
 
+	hours_display.on_input.push_back([&](auto&&, int old_value, int new_value)
+	{
+		using namespace std::chrono;
+		auto offset = hours(new_value) - hours(old_value);
+		current_timer = timer(current_timer.remaining_duration() + offset);
+	});
+	minutes_display.on_input.push_back([&](auto&&, int old_value, int new_value)
+	{
+		using namespace std::chrono;
+		auto new_minutes = minutes(new_value);
+		if(new_minutes >= hours(1))
+			new_minutes = hours(1) - minutes(1);
+		auto offset = new_minutes - minutes(old_value);
+		current_timer = timer(current_timer.remaining_duration() + offset);
+	});
+	seconds_display.on_input.push_back([&](auto&&, int old_value, int new_value)
+	{
+		using namespace std::chrono;
+		auto new_seconds = seconds(new_value);
+		if(new_seconds >= minutes(1))
+			new_seconds = minutes(1) - seconds(1);
+		auto offset = new_seconds - seconds(old_value);
+		current_timer = timer(current_timer.remaining_duration() + offset);
+	});
+
+
+	focus_group main_focus_group{};
+	main_focus_group.elements.push_back(&hours_display);
+	main_focus_group.elements.push_back(&minutes_display);
+	main_focus_group.elements.push_back(&seconds_display);
+	auto focus_handler = [&main_focus_group](auto& element)
+	{
+		main_focus_group.focus(&element);
+	};
+	hours_display.on_press.push_back(focus_handler);
+	minutes_display.on_press.push_back(focus_handler);
+	seconds_display.on_press.push_back(focus_handler);
+
 	std::optional<timer::clock::time_point> countup_point = std::nullopt;
 	auto& up_button = make_control_button();
 	auto& stop_button = make_control_button();
@@ -141,8 +181,10 @@ int main(int argc, const char** argv) try
 				[](auto) { }
 			}, *event);
 
+			main_focus_group.pre_update(*event);
 			for(auto&& interactive : ui.interactives())
 				interactive->update(*event);
+			main_focus_group.post_update(*event);
 		}
 
 		fill(win.surface(), bg_color);
@@ -155,15 +197,18 @@ int main(int argc, const char** argv) try
 
 		if(current_timer.check())
 		{
-			if(music && !music_playing)
+			if(!music_playing)
 			{
 				music_playing = true;
 				win.restore();
-				device = std::make_unique<music_device>(
-					musical::basic_device_parameters{music->obtained()},
-					player
-				);
-				device->play();
+				if(music)
+				{
+					device = std::make_unique<music_device>(
+						musical::basic_device_parameters{music->obtained()},
+						player
+					);
+					device->play();
+				}
 			}
 			current_timer.pause();
 		}

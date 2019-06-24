@@ -37,7 +37,7 @@ class ui_element : public i_interactive_focusable
 
 	virtual ~ui_element() = default;
 
-	void update(interactive::event) noexcept override;
+	void update(const interactive::event&) noexcept override;
 
 	state current_state() const noexcept;
 
@@ -64,14 +64,19 @@ class focus_group
 {
 	public:
 	using container = std::vector<i_focusable*>;
-	container elements;
+
 	void focus();
 	void drop_focus();
 	void focus(size_t index);
 	void focus(i_focusable*);
 
+	void pre_update(const interactive::event&);
+	void post_update(const interactive::event&);
+
+	container elements;
 	private:
 	i_focusable* focused_element = nullptr;
+	bool expecting_focus = false;
 };
 
 #endif /* end of include guard */
