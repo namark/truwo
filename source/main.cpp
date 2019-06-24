@@ -1,8 +1,9 @@
 // TODO: button focus, TAB SHIFT+TAB to change focus
-// TODO: progress bar at the bottom ( flashes when done )
-// TODO: topbar with recent set timers, with option to pin, displays mini ui(set time and progress bar)
+// TODO: higher frametime for minimized window
 // TODO: resizable window
 // TODO: full set of command line parameters (set time, autostart, loop, bg/fg color, window size/position, gui on/off, etc.)
+// TODO: progress bar at the bottom ( flashes when done )
+// TODO: topbar with recent set timers, with option to pin, displays mini ui(set time and progress bar)
 // TODO: run several timers at the same time
 // TODO: allow separate alarm sounds per timer, and mix the audio
 // TODO: more alarm settings with a visualization (alarm duration, included or excluded from next timer loop)
