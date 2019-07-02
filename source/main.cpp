@@ -1,5 +1,8 @@
+// FIXME: window not properly raised on alarm
 // TODO: button focus, TAB SHIFT+TAB to change focus
 // TODO: higher frametime for minimized window
+// TODO: proper support for wav, and streaming audio from disk
+// TODO: more audio formats (mp3, ogg, flac ... would be cool to learn some ffmpeg here)
 // TODO: resizable window
 // TODO: full set of command line parameters (set time, autostart, loop, bg/fg color, window size/position, gui on/off, etc.)
 // TODO: progress bar at the bottom ( flashes when done )
@@ -8,6 +11,10 @@
 // TODO: allow separate alarm sounds per timer, and mix the audio
 // TODO: more alarm settings with a visualization (alarm duration, included or excluded from next timer loop)
 // TODO: android version
+//
+// TODO: functional tests with xdotool and parecord
+//		https://askubuntu.com/questions/60837/record-a-programs-output-with-pulseaudio
+//		https://ro-che.info/articles/2017-07-21-record-audio-linux
 #include <atomic>
 #include <cstdio>
 #include <cerrno>
@@ -195,6 +202,9 @@ int main(int argc, const char** argv) try
 
 		up_button.enable(!music_playing && !countup_point.has_value());
 		down_button.enable(!music_playing && current_timer.paused());
+		hours_display.enable(!music_playing);
+		minutes_display.enable(!music_playing);
+		seconds_display.enable(!music_playing);
 
 		if(current_timer.check())
 		{

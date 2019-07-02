@@ -66,6 +66,9 @@ void time_display::draw(const graphical::surface& target)
 
 void time_display::update(const interactive::event& event) noexcept
 {
+	if(current_state() == ui_element::state::disabled)
+		return;
+
 	ui_element::update(event);
 	if(ui_element::focus())
 	{
