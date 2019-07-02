@@ -1,4 +1,3 @@
-// FIXME: window not properly raised on alarm
 // TODO: button focus, TAB SHIFT+TAB to change focus
 // TODO: higher frametime for minimized window
 // TODO: proper support for wav, and streaming audio from disk
@@ -212,6 +211,7 @@ int main(int argc, const char** argv) try
 			{
 				music_playing = true;
 				win.restore();
+				win.raise();
 				if(music)
 				{
 					device = std::make_unique<music_device>(
