@@ -1,4 +1,3 @@
-// TODO: button focus, TAB SHIFT+TAB to change focus
 // TODO: higher frametime for minimized window
 // TODO: proper support for wav, and streaming audio from disk
 // TODO: more audio formats (mp3, ogg, flac ... would be cool to learn some ffmpeg here)
@@ -123,13 +122,14 @@ int main(int argc, const char** argv) try
 
 
 	focus_group main_focus_group{};
-	main_focus_group.elements.push_back(&hours_display);
-	main_focus_group.elements.push_back(&minutes_display);
-	main_focus_group.elements.push_back(&seconds_display);
 	auto focus_handler = [&main_focus_group](auto& element)
 	{
 		main_focus_group.focus(&element);
 	};
+
+	main_focus_group.elements.push_back(&hours_display);
+	main_focus_group.elements.push_back(&minutes_display);
+	main_focus_group.elements.push_back(&seconds_display);
 	hours_display.on_press.push_back(focus_handler);
 	minutes_display.on_press.push_back(focus_handler);
 	seconds_display.on_press.push_back(focus_handler);
@@ -138,6 +138,13 @@ int main(int argc, const char** argv) try
 	auto& up_button = make_control_button();
 	auto& stop_button = make_control_button();
 	auto& down_button = make_control_button();
+
+	main_focus_group.elements.push_back(&up_button);
+	main_focus_group.elements.push_back(&stop_button);
+	main_focus_group.elements.push_back(&down_button);
+	up_button.on_press.push_back(focus_handler);
+	stop_button.on_press.push_back(focus_handler);
+	down_button.on_press.push_back(focus_handler);
 
 	up_button.on_click.push_back([&](auto&)
 	{

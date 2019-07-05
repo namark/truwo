@@ -19,8 +19,8 @@ movable_bounds& movable_bounds::operator+=(const int2& offset)
 }
 
 ui_element::ui_element(const i_bounds<int2>& bounds) :
-	bounds_proxy(bounds),
 	current(state::idle),
+	bounds_proxy(bounds),
 	_focus(false)
 { }
 
@@ -141,12 +141,41 @@ void focus_group::pre_update(const interactive::event& event)
 	}, event);
 }
 
-void focus_group::post_update(const interactive::event&)
+void focus_group::post_update(const interactive::event& event)
 {
 	if(expecting_focus)
 	{
 		expecting_focus = false;
 		drop_focus();
 	}
+
+	std::visit(support::overloaded{
+		[this](const interactive::key_pressed& event)
+		{
+			using namespace interactive;
+			if(event.data.keycode == interactive::keycode::tab)
+			{
+				int direction;
+				if(pressed(scancode::rshift) || pressed(scancode::lshift))
+				{
+					direction = !focused_element
+						? elements.size()-1
+						: !focused_element->focus() ? 0 : -1;
+				}
+				else
+				{
+					direction = !focused_element || !focused_element->focus() ? 0 : 1;
+				}
+
+				focus(support::wrap(
+					std::find(elements.begin(), elements.end(), focused_element) - elements.begin() +
+					direction,
+					elements.end() - elements.begin()
+				));
+			}
+		},
+		[](auto&&){}
+	}, event);
+
 }
 

@@ -53,10 +53,10 @@ class ui_element : public i_interactive_focusable
 
 	protected:
 	explicit ui_element(const i_bounds<int2>&);
+	state current;
 
 	private:
 	const i_bounds<int2>& bounds_proxy;
-	state current;
 	bool _focus;
 };
 

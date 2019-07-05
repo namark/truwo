@@ -128,7 +128,7 @@ constexpr auto center(const Object& object, const Area& area)
 }
 
 void outline(const graphical::surface&, graphical::color, range2D);
-
-void highlight(const graphical::surface&, graphical::color, range2D, int2 sparsity = int2(2,1));
+void lowlight(const graphical::surface&, graphical::color, range2D, int2 dim = int2(2,1));
+void outline_lowlight(const graphical::surface&, graphical::color, range2D, int2 dim = int2(2,2));
 
 #endif /* end of include guard */

@@ -53,7 +53,7 @@ void time_display::draw(const graphical::surface& target)
 {
 	if(ui_element::focus())
 	{
-		highlight(target, color, {lower(), upper()}, int2{3,3});
+		lowlight(target, color, {lower(), upper()}, int2{3,3});
 		graphical::fill(target, color, {upper() - (upper()-lower()) / int2{1, 40}, upper()});
 	}
 
@@ -66,10 +66,11 @@ void time_display::draw(const graphical::surface& target)
 
 void time_display::update(const interactive::event& event) noexcept
 {
+	ui_element::update(event);
+
 	if(current_state() == ui_element::state::disabled)
 		return;
 
-	ui_element::update(event);
 	if(ui_element::focus())
 	{
 		using namespace interactive;
@@ -153,7 +154,7 @@ void time_display::update(const interactive::event& event) noexcept
 					break;
 
 
-					default: ;
+					default: return;
 				}
 
 				if(input_value != set_value)

@@ -10,6 +10,7 @@ class plain_button :
 	explicit plain_button(const plain_button&) = default;
 	plain_button(graphical::color color, range2D bounds);
 	virtual void draw(const graphical::surface&) override;
+	virtual void update(const interactive::event&) noexcept override;
 
 	private:
 	graphical::color color;
