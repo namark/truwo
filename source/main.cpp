@@ -219,6 +219,7 @@ int main(int argc, const char** argv) try
 				music_playing = true;
 				win.restore();
 				win.raise();
+				main_focus_group.focus(&stop_button);
 				if(music)
 				{
 					device = std::make_unique<music_device>(
