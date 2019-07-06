@@ -131,4 +131,18 @@ void outline(const graphical::surface&, graphical::color, range2D);
 void lowlight(const graphical::surface&, graphical::color, range2D, int2 dim = int2(2,1));
 void outline_lowlight(const graphical::surface&, graphical::color, range2D, int2 dim = int2(2,2));
 
+template <typename ExtractedDuration, typename Duration>
+ExtractedDuration extract_duration(Duration& duration)
+{
+	auto extracted = std::chrono::duration_cast<ExtractedDuration>(duration);
+	duration -= extracted;
+	return extracted;
+}
+
+template <typename... SplitDuration, typename Duration>
+std::tuple<SplitDuration...> split_duration(Duration duration)
+{
+	return { extract_duration<SplitDuration>(duration)... };
+};
+
 #endif /* end of include guard */

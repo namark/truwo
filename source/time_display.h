@@ -18,8 +18,7 @@ class time_display :
 	time_display(int2 digit_size, int2 digit_spacing, graphical::color color);
 	virtual ~time_display() = default;
 
-	template<typename Type>
-	duration set(duration);
+	void set(int value) noexcept;
 
 	time_display& operator+=(const int2&) override;
 	int2 lower() const override;

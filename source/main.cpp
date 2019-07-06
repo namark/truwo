@@ -1,3 +1,4 @@
+// TODO: icon
 // TODO: proper support for wav, and streaming audio from disk
 // TODO: more audio formats (mp3, ogg, flac ... would be cool to learn some ffmpeg here)
 // TODO: resizable window
@@ -14,6 +15,8 @@
 //		https://ro-che.info/articles/2017-07-21-record-audio-linux
 #include <atomic>
 #include <cstdio>
+#include <sstream>
+#include <iomanip>
 #include <cerrno>
 
 #include "simple.hpp"
@@ -36,6 +39,9 @@ int main(int argc, const char** argv) try
 	ui_factory ui;
 
 	auto frametime = fast_frametime;
+
+	std::ostringstream title;
+	title << std::setfill('0');
 
 	auto music = argc > 1
 		?  argv[1][0] != '\0' ? std::optional<musical::wav>(argv[1]) : std::nullopt
@@ -218,6 +224,18 @@ int main(int argc, const char** argv) try
 			win.update();
 		}
 
+		{ using namespace std::chrono;
+			auto [h, m, s] =
+				split_duration<hours, minutes, seconds>(current_timer.remaining_duration());
+			title <<
+				std::setw(2) << h.count() <<  ":" <<
+				std::setw(2) << m.count() << ":" <<
+				std::setw(2) << s.count() << " -- melno";
+			win.title(title.str().c_str());
+			title.str("");
+			title.clear();
+		}
+
 		up_button.enable(!music_playing && !countup_point.has_value());
 		down_button.enable(!music_playing && current_timer.paused());
 		hours_display.enable(!music_playing);
@@ -231,6 +249,7 @@ int main(int argc, const char** argv) try
 				music_playing = true;
 				win.restore();
 				win.raise();
+				frametime = fast_frametime;
 				main_focus_group.focus(&stop_button);
 				if(music)
 				{
@@ -247,13 +266,10 @@ int main(int argc, const char** argv) try
 		if(countup_point)
 			current_timer = timer(timer::clock::now() - *countup_point);
 
-		seconds_display.set<std::chrono::seconds>(
-			minutes_display.set<std::chrono::minutes>(
-				hours_display.set<std::chrono::hours>(
-					current_timer.remaining_duration()
-				)
-			)
-		);
+		auto duration = current_timer.remaining_duration();
+		hours_display.set(extract_duration<std::chrono::hours>(duration).count());
+		minutes_display.set(extract_duration<std::chrono::minutes>(duration).count());
+		seconds_display.set(extract_duration<std::chrono::seconds>(duration).count());
 
 		const auto next_frame_time = current_timer.paused()
 			? current_time + frametime
