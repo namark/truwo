@@ -32,8 +32,4 @@ class initializer
 using namespace std::literals;
 using namespace graphical::color_literals;
 
-// rgb_pixel main_color = 0x3ba3cd_rgb;
-const rgb_pixel main_color = 0x009dff_rgb;
-const auto frametime = 33ms;
-
 #endif /* end of include guard */

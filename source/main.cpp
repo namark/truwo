@@ -1,4 +1,3 @@
-// TODO: higher frametime for minimized window
 // TODO: proper support for wav, and streaming audio from disk
 // TODO: more audio formats (mp3, ogg, flac ... would be cool to learn some ffmpeg here)
 // TODO: resizable window
@@ -28,8 +27,15 @@
 
 int main(int argc, const char** argv) try
 {
+	const rgb_pixel main_color = 0x009dff_rgb; // or 0x3ba3cd_rgb;
+	const auto fast_frametime = 33ms;
+	const auto slow_frametime = 256ms;
+	assert(fast_frametime != slow_frametime);
+
 	initializer init;
 	ui_factory ui;
+
+	auto frametime = fast_frametime;
 
 	auto music = argc > 1
 		?  argv[1][0] != '\0' ? std::optional<musical::wav>(argv[1]) : std::nullopt
@@ -192,6 +198,8 @@ int main(int argc, const char** argv) try
 		{
 			std::visit(support::overloaded{
 				[&done](quit_request) { done = true; },
+				[&](window_minimized) { frametime = slow_frametime; },
+				[&](window_restored) { frametime = fast_frametime; },
 				[](auto) { }
 			}, *event);
 
@@ -201,10 +209,14 @@ int main(int argc, const char** argv) try
 			main_focus_group.post_update(*event);
 		}
 
-		fill(win.surface(), bg_color);
+		if(frametime == fast_frametime)
+		{
+			fill(win.surface(), bg_color);
 
-		for(auto&& graphic : ui.graphics())
-			graphic->draw(win.surface());
+			for(auto&& graphic : ui.graphics())
+				graphic->draw(win.surface());
+			win.update();
+		}
 
 		up_button.enable(!music_playing && !countup_point.has_value());
 		down_button.enable(!music_playing && current_timer.paused());
@@ -243,8 +255,11 @@ int main(int argc, const char** argv) try
 			)
 		);
 
-		win.update();
-		std::this_thread::sleep_until(current_time + frametime);
+		const auto next_frame_time = current_timer.paused()
+			? current_time + frametime
+			: min(current_timer.target_time_point(), current_time + frametime);
+		std::this_thread::sleep_until(next_frame_time);
+
 	}
 
 	return 0;
