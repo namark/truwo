@@ -42,23 +42,21 @@ int main(int argc, const char** argv) try
 
 	auto frametime = fast_frametime;
 
-	using graphical::surface;
-	using graphical::pixel_format;
 	std::string icon_string =
-		"_________"
-		"_*_____*_"
-		"_**___**_"
-		"_*_*_*_*_"
-		"_*__*__*_"
-		"_*_____*_"
-		"_*_____*_"
-		"_*_____*_"
-		"_________"
+		"---------" // "---------"
+		"---------" // "-+-----+-"
+		"-+-----+-" // "-++---++-"
+		"-++---++-" // "-+-+-+-+-"
+		"-+-+-+-+-" // "-+--+--+-"
+		"-+--+--+-" // "-+-----+-"
+		"-+-----+-" // "-+-----+-"
+		"---------" // "-+-----+-"
+		"---------" // "---------"
 	;
-	surface icon( reinterpret_cast<surface::byte*>(icon_string.data()), {9,9},
+	surface icon_small(reinterpret_cast<surface::byte*>(icon_string.data()), {9,9},
 		pixel_format(pixel_format::type::index8));
-	icon.format().palette()->set_color('*', main_color);
-	icon.format().palette()->set_color('_', 0x0_rgba);
+	icon_small.format().palette()->set_color('+', main_color);
+	icon_small.format().palette()->set_color('-', 0x0_rgba);
 
 	std::ostringstream title;
 	title << std::setfill('0');
@@ -68,9 +66,12 @@ int main(int argc, const char** argv) try
 		: std::optional<musical::wav>("./melno.wav");
 
 	graphical::software_window win("melno", {400,200});
-	win.icon(icon);
 	auto fg_color = win.surface().format().color(main_color);
 	auto bg_color = win.surface().format().color(0x0_rgb);
+
+	surface icon({64,64}, pixel_format(pixel_format::type::rgba8888));
+	blit(convert( icon_small, icon.format()), icon, rect{icon.size()});
+	win.icon(icon);
 
 	rect button_rect{win.size()/8 + int2{5,5}};
 	auto make_control_button = [&]() -> auto&

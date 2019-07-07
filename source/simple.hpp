@@ -31,5 +31,7 @@ class initializer
 
 using namespace std::literals;
 using namespace graphical::color_literals;
+using graphical::surface;
+using graphical::pixel_format;
 
 #endif /* end of include guard */
