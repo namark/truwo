@@ -1,4 +1,5 @@
 // TODO: long press on stop resets timer
+// TODO: blinking :
 // TODO: proper support for wav, and streaming audio from disk
 // TODO: more audio formats (mp3, ogg, flac ... would be cool to learn some ffmpeg here)
 // TODO: resizable window
@@ -8,6 +9,7 @@
 // TODO: run several timers at the same time
 // TODO: allow separate alarm sounds per timer, and mix the audio
 // TODO: more alarm settings with a visualization (alarm duration, included or excluded from next timer loop)
+// TODO: web version
 // TODO: android version
 //
 // TODO: functional tests with xdotool and parecord
