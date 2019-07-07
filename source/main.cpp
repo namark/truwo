@@ -1,4 +1,4 @@
-// TODO: icon
+// TODO: long press on stop resets timer
 // TODO: proper support for wav, and streaming audio from disk
 // TODO: more audio formats (mp3, ogg, flac ... would be cool to learn some ffmpeg here)
 // TODO: resizable window
@@ -40,6 +40,24 @@ int main(int argc, const char** argv) try
 
 	auto frametime = fast_frametime;
 
+	using graphical::surface;
+	using graphical::pixel_format;
+	std::string icon_string =
+		"_________"
+		"_*_____*_"
+		"_**___**_"
+		"_*_*_*_*_"
+		"_*__*__*_"
+		"_*_____*_"
+		"_*_____*_"
+		"_*_____*_"
+		"_________"
+	;
+	surface icon( reinterpret_cast<surface::byte*>(icon_string.data()), {9,9},
+		pixel_format(pixel_format::type::index8));
+	icon.format().palette()->set_color('*', main_color);
+	icon.format().palette()->set_color('_', 0x0_rgba);
+
 	std::ostringstream title;
 	title << std::setfill('0');
 
@@ -48,6 +66,7 @@ int main(int argc, const char** argv) try
 		: std::optional<musical::wav>("./melno.wav");
 
 	graphical::software_window win("melno", {400,200});
+	win.icon(icon);
 	auto fg_color = win.surface().format().color(main_color);
 	auto bg_color = win.surface().format().color(0x0_rgb);
 
