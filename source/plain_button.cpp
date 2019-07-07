@@ -51,7 +51,7 @@ void plain_button::update(const interactive::event& event) noexcept
 		{
 			[this](const key_pressed& event)
 			{
-				if(event.data.scancode == scancode::space)
+				if(event.data.scancode == scancode::space && event.data.repeat == 0)
 				{
 					current = state::pressed;
 					for(auto&& callback : on_press)
@@ -63,6 +63,8 @@ void plain_button::update(const interactive::event& event) noexcept
 				if(event.data.scancode == scancode::space)
 				{
 					current = state::idle;
+					for(auto&& callback : on_release)
+						callback(*this);
 					for(auto&& callback : on_click)
 						callback(*this);
 				}

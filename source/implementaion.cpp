@@ -49,6 +49,8 @@ void ui_element::update(const interactive::event& event) noexcept
 			if(state::pressed == current)
 			{
 				current = state::idle;
+				for(auto&& callback : on_release)
+					callback(*this);
 				if(contains(bounds_proxy, mouse.data.position))
 				{
 					current = state::hover;

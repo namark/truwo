@@ -1,4 +1,3 @@
-// TODO: long press on stop resets timer
 // TODO: blinking :
 // TODO: proper support for wav, and streaming audio from disk
 // TODO: more audio formats (mp3, ogg, flac ... would be cool to learn some ffmpeg here)
@@ -185,13 +184,18 @@ int main(int argc, const char** argv) try
 		countup_point = timer::clock::now() - current_timer.remaining_duration();
 	});
 
+	auto reset_current_timer = [&]()
+	{
+		music_playing = false;
+		device = nullptr;
+		current_timer = timer(current_timer.duration());
+	};
+
 	stop_button.on_click.push_back([&](auto&)
 	{
 		if(music_playing)
 		{
-			music_playing = false;
-			device = nullptr;
-			current_timer = timer(current_timer.duration());
+			reset_current_timer();
 		}
 		else
 		{
@@ -206,6 +210,17 @@ int main(int argc, const char** argv) try
 		if(countup_point)
 			countup_point = std::nullopt;
 		current_timer.resume();
+	});
+
+	timer stop_button_hold(1s);
+	stop_button.on_press.push_back([&stop_button_hold](auto&)
+	{
+		stop_button_hold = timer(stop_button_hold.duration(), true);
+	});
+
+	stop_button.on_release.push_back([&stop_button_hold](auto&)
+	{
+		stop_button_hold.pause();
 	});
 
 	bounds_layout button_layout ({&up_button, &stop_button, &down_button}, int2::j(5));
@@ -263,6 +278,9 @@ int main(int argc, const char** argv) try
 		hours_display.enable(!music_playing);
 		minutes_display.enable(!music_playing);
 		seconds_display.enable(!music_playing);
+
+		if(stop_button_hold.check())
+			reset_current_timer();
 
 		if(current_timer.check())
 		{

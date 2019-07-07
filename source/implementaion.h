@@ -47,6 +47,7 @@ class ui_element : public i_interactive_focusable
 	using callback = std::function<void(ui_element&)>;
 	std::vector<callback> on_click;
 	std::vector<callback> on_press;
+	std::vector<callback> on_release;
 
 	void focus(bool) noexcept override;
 	bool focus() const noexcept override;
