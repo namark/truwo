@@ -27,7 +27,10 @@ void lowlight(const graphical::surface& target, graphical::color color, range2D 
 	range2D target_bounds = rect{target.size()};
 	bounds = intersection(bounds, target_bounds);
 	if(!bounds.valid())
-		return;
+		return; // we are off target
+
+	// unless there is no distance to travel, make sure to step forward
+	assert( (bounds.upper() - bounds.lower() == int2::zero()) | (dim > int2::zero()) );
 
 	std::visit([&](auto writer)
 	{
