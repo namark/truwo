@@ -1,12 +1,5 @@
 #include "layout.h"
 
-int2 signum(int2 v) noexcept
-{
-	std::transform(v.begin(), v.end(), v.begin(),
-			[](auto&& c){ return c == 0 ? 0 : c/c; });
-	return v;
-}
-
 int2 select_corner(range2D rng, int2 direction) noexcept
 {
 	// center + direction * half_size
