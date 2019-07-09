@@ -2,6 +2,7 @@
 #define BITMAP_HPP
 
 #include "implementaion.h"
+#include "utils.hpp"
 
 template <int width, int height>
 class bitmap_data
@@ -18,7 +19,7 @@ class bitmap : public movable_bounds, public i_graphic, public i_ui_object
 	public:
 	using bit_data = bitmap_data<width, height>;
 	bitmap(const bit_data& data, graphical::color color, range2D bounds) :
-		movable_bounds(bounds), data(&data), color(color)
+		movable_bounds(bounds), dim(int2::zero()), data(&data), color(color)
 	{ }
 
 	void draw(const graphical::surface& surface)
@@ -30,12 +31,24 @@ class bitmap : public movable_bounds, public i_graphic, public i_ui_object
 		while(dimension != cell.end())
 		{
 			if(data->bits[data->bits.size()-1 - (cell.y() * size.x() + cell.x())])
-				fill(surface, color, rect{cell_size, bounds.lower() + cell*cell_size});
+			{
+				// arguably any_of(dim, greather_that_zero) is better, but i like this
+				if(not(dim <= int2::zero()))
+				{
+					lowlight(surface, color, rect{cell_size, bounds.lower() + cell*cell_size}, dim);
+				}
+				else
+				{
+					fill(surface, color, rect{cell_size, bounds.lower() + cell*cell_size});
+				}
+			}
 			dimension = support::advance_vector(cell, int2::zero(), size);
 		}
 	}
 
 	void set_data(const bit_data& new_data) { data = &new_data; }
+
+	int2 dim;
 
 	private:
 	const bit_data* data;
