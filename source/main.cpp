@@ -1,15 +1,19 @@
-// TODO: blinking :
+// TODO: web  build
+// TODO: android build
 // TODO: proper support for wav, and streaming audio from disk
 // TODO: more audio formats (mp3, ogg, flac ... would be cool to learn some ffmpeg here)
 // TODO: resizable window
 // TODO: full set of command line parameters (set time, autostart, loop, bg/fg color, window size/position, gui on/off, etc.)
+// TODO: quick count up/down by long press
+// TODO: treat the 3 number displays as single line for input (this is really hard to explain -_-)
 // TODO: progress bar at the bottom ( flashes when done )
+// TODO: loop toggle
 // TODO: topbar with recent set timers, with option to pin, displays mini ui(set time and progress bar)
 // TODO: run several timers at the same time
 // TODO: allow separate alarm sounds per timer, and mix the audio
 // TODO: more alarm settings with a visualization (alarm duration, included or excluded from next timer loop)
-// TODO: web version
-// TODO: android version
+// TODO: web version (file management)
+// TODO: android version (portrait layout, file management)
 //
 // TODO: functional tests with xdotool and parecord
 //		https://askubuntu.com/questions/60837/record-a-programs-output-with-pulseaudio
