@@ -1,3 +1,6 @@
+// TODO; smart digit display (one on the left - lean left, on the right - lean right)
+// TODO; constrain time to 99:59:59 (for command line arguments, and when counting up)
+// TODO; change time_display to digit_display(with parameterized digit count)
 // TODO: web  build
 // TODO: android build
 // TODO: proper support for wav, and streaming audio from disk
@@ -35,10 +38,31 @@
 
 int main(int argc, const char** argv) try
 {
-	const rgb_pixel main_color = 0x009dff_rgb; // or 0x3ba3cd_rgb;
-	const auto fast_frametime = 33ms;
-	const auto slow_frametime = 256ms;
-	assert(fast_frametime != slow_frametime);
+	using support::ston;
+
+	const auto main_color = argc > 5
+		? rgb_pixel::from(ston<rgb_pixel::int_type>(argv[5]))
+		: 0x009dff_rgb; // or 0x3ba3cd_rgb;
+
+	const auto second_color = argc > 6
+		? rgb_pixel::from(ston<rgb_pixel::int_type>(argv[6]))
+		: 0x000000_rgb;
+
+	const std::chrono::milliseconds fast_frametime (argc > 7 ? ston<unsigned>(argv[7]) : 33);
+	const std::chrono::milliseconds slow_frametime (argc > 8 ? ston<unsigned>(argv[8]) : 256);
+
+	if(main_color == second_color) // would be cool to have a smarter contrast check
+	{
+		std::fputs("foreground(5th) and background(6th) colors should differ", stderr);
+		std::fputs("\n", stderr);
+		return -1;
+	}
+	if(fast_frametime >= slow_frametime)
+	{
+		std::fputs("fast frame(7th) time should be lower than slow_frametime(8th)", stderr);
+		std::fputs("\n", stderr);
+		return -2;
+	}
 
 	initializer init;
 	ui_factory ui;
@@ -70,7 +94,7 @@ int main(int argc, const char** argv) try
 
 	graphical::software_window win("melno", {400,200});
 	auto fg_color = win.surface().format().color(main_color);
-	auto bg_color = win.surface().format().color(0x0_rgb);
+	auto bg_color = win.surface().format().color(second_color);
 
 	surface icon({64,64}, pixel_format(pixel_format::type::rgba8888));
 	blit(convert( icon_small, icon.format()), icon, rect{icon.size()});
@@ -111,9 +135,9 @@ int main(int argc, const char** argv) try
 	std::unique_ptr<music_device> device = nullptr;
 
 	auto current_timer = timer{
-		std::chrono::hours(argc > 2 ? support::ston<unsigned>(argv[2]) : 0) +
-		std::chrono::minutes(argc > 3 ? support::ston<unsigned>(argv[3]) : 0) +
-		std::chrono::seconds(argc > 4 ? support::ston<unsigned>(argv[4]) : 0),
+		std::chrono::hours(argc > 2 ? ston<unsigned>(argv[2]) : 0) +
+		std::chrono::minutes(argc > 3 ? ston<unsigned>(argv[3]) : 0) +
+		std::chrono::seconds(argc > 4 ? ston<unsigned>(argv[4]) : 0),
 	};
 
 	auto& hours_display = make_time_display();
@@ -331,7 +355,10 @@ catch(...)
 
 	const char* sdl_error = SDL_GetError();
 	if(*sdl_error)
-		std::puts(sdl_error);
+	{
+		std::fputs(sdl_error, stderr);
+		std::fputs("\n", stderr);
+	}
 
 	throw;
 }
