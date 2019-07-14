@@ -41,14 +41,12 @@ class double_deref_itr
 };
 template <typename T> double_deref_itr(T) -> double_deref_itr<T>;
 
-const range2D bounds_layout::invalid_bounds{std::numeric_limits<int2>::max(),std::numeric_limits<int2>::min()};
-
 range2D bounds_layout::update()
 {
 	layout_bounds(double_deref_itr{elements.begin()}, double_deref_itr{elements.end()}, spacing);
 
 	// invalid tange, returned for empty layout
-	bounds = invalid_bounds;
+	bounds = invalid_range;
 	for(auto&& element : elements)
 	{
 		bounds.lower() = min(bounds.lower(), element->lower());

@@ -34,4 +34,6 @@ using namespace graphical::color_literals;
 using graphical::surface;
 using graphical::pixel_format;
 
+constexpr range2D invalid_range{std::numeric_limits<int2>::max(),std::numeric_limits<int2>::min()};
+
 #endif /* end of include guard */

@@ -44,19 +44,18 @@ constexpr void layout_bounds(Range range, const int2& spacing)
 class bounds_layout : public movable_bounds
 {
 	public:
-	static const range2D invalid_bounds;
 	using container = std::vector<i_movable_bounds<int2>*>;
 	container elements;
 	int2 spacing;
 
 	bounds_layout(container elements, int2 spacing = int2::zero()) :
-		movable_bounds(invalid_bounds),
+		movable_bounds(invalid_range),
 		elements(elements),
 		spacing(spacing)
 	{ }
 
 	bounds_layout(int2 spacing) :
-		movable_bounds(invalid_bounds),
+		movable_bounds(invalid_range),
 		elements{},
 		spacing(spacing)
 	{ }
