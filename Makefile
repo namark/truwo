@@ -32,10 +32,10 @@ $(TEMPDIR)/%.o: %.cpp | $(TEMPDIR)
 	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -o $@ -c $<
 
 $(TEMPDIR):
-	@mkdir $@
+	@mkdir -p $@
 
 $(DISTDIR):
-	@mkdir $@
+	@mkdir -p $@
 
 clean:
 	@rm $(DEPENDS) 2> /dev/null || true
