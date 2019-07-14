@@ -13,7 +13,7 @@ const std::array<digit_data, digit_count> digit =
 	// 1
 	digit_data::bitset{
 		"010"
-		"010"
+		"110"
 		"010"
 		"010"
 		"010"
