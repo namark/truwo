@@ -17,6 +17,8 @@ time_display::time_display(int2 digit_size, int2 digit_spacing, graphical::color
 	input(false)
 {
 	layout.update();
+	digits[0].align = -int2::i();
+	digits[1].align = int2::i();
 }
 
 void time_display::set(int value) noexcept

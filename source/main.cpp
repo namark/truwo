@@ -1,4 +1,3 @@
-// TODO; smart digit display (one on the left - lean left, on the right - lean right)
 // TODO; constrain time to 99:59:59 (for command line arguments, and when counting up)
 // TODO; change time_display to digit_display(with parameterized digit count)
 // TODO: web  build
