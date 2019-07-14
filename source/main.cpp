@@ -1,4 +1,3 @@
-// TODO; constrain time to 99:59:59 (for command line arguments, and when counting up)
 // TODO; change time_display to digit_display(with parameterized digit count)
 // TODO: web  build
 // TODO: android build
@@ -34,6 +33,9 @@
 #include "utils.hpp"
 #include "time_display.h"
 #include "timer.h"
+
+const std::chrono::steady_clock::duration max_duration = 99h + 59min + 59s;
+const std::chrono::steady_clock::duration min_duration{};
 
 int main(int argc, const char** argv) try
 {
@@ -138,6 +140,7 @@ int main(int argc, const char** argv) try
 		std::chrono::minutes(argc > 3 ? ston<unsigned>(argv[3]) : 0) +
 		std::chrono::seconds(argc > 4 ? ston<unsigned>(argv[4]) : 0),
 	};
+	current_timer = timer(clamp(current_timer.duration(), min_duration, max_duration));
 
 	auto& hours_display = make_time_display();
 	auto& minutes_display = make_time_display();
@@ -331,7 +334,7 @@ int main(int argc, const char** argv) try
 		}
 
 		if(countup_point)
-			current_timer = timer(timer::clock::now() - *countup_point);
+			current_timer = timer(clamp(timer::clock::now() - *countup_point, min_duration, max_duration));
 
 		auto duration = current_timer.remaining_duration();
 		hours_display.set(extract_duration<std::chrono::hours>(duration).count());
