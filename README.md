@@ -2,7 +2,7 @@ This is a simple GUI timer that can count up and down, and play sound when reach
 
 ## Use instructions
 ### Overview
-The timer show hours, minutes and seconds from left to right. You can set the time by clicking on the section of the timer and typing in the numbers. <br />
+The timer shows hours, minutes and seconds from left to right. You can set the time by clicking on the section of the timer and typing in the numbers. <br />
 On the right side there are three buttons:
 1. Top button, starts the timer counting up.
 2. Bottom button, starts the timer counting down.
