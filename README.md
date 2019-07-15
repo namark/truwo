@@ -29,7 +29,7 @@ The audio file is loaded into memory in its entirety when the application starts
 
 
 ## Build instructions
-Below are build instructions for GNU systems (including cygwin on Windows), primarily using `make`. If that does not suit your needs it should not be hard to set this project up with your favorite build system IDE. See the dependencies in the next section.
+Below are build instructions for GNU systems (including cygwin on Windows), primarily using `make`. If that does not suit your needs it should not be hard to set this project up with your favorite build system IDE. See the dependencies in the next section. <br />
 [Basic setup](docs/1_basic_setup.md) <br />
 [Compile and run](docs/2_compile_and_run.md) <br />
 [More on some of these makeshift tools](docs/3_more_on_tools.md)

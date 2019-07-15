@@ -60,7 +60,7 @@ export AR=x86_64-w64-mingw32-ar
 ./tools/setup/init.sh
 export CXXFLAGS="-DSDL_MAIN_HANDLED"
 make
-cp /usr/x86_64-w64-mingw32/sys-root/bin/*.dll ./out/
+cp /usr/x86_64-w64-mingw32/sys-root/mingw/bin/*.dll ./out/
 ./out/melno ""
 ```
 
