@@ -7,6 +7,7 @@ On the right side there are three buttons:
 1. Top button, starts the timer counting up.
 2. Bottom button, starts the timer counting down.
 3. Middle button pauses the timer, or if long pressed rests to the value that was set before the countdown started.
+
 When the timer reaches zero it plays a sound. Unless specified otherwise it would be the melno.wav file in the "current directory". In this alarm state all controls are disabled except the middle button which will stop the sound and reset the timer when pressed.<br />
 There a usual concept of focus that works with mouse and keyboard controls for it. Tab and Shift+Tab keys will move the focus between the controls. When focused on a section of time display you can input a number. When focused on a button you can press it with the Space key (long press would also work).<br />
 Note that you can start several instances of the application at the same time, they don't remember any state and should not interfere with each other.
@@ -21,6 +22,7 @@ When starting the application from command line there are 8 positional parameter
 6. The secondary/background color of the UI, specified as a number/code. (default: 0x000000).
 7. The frame time in milliseconds (default: 33).
 8. The frame time when the application is minimized, in milliseconds (default: 256)
+
 Any invalid input (non existent files, wrong file formats, wrong number formats, etc.) will gracefully crash the application.<br />
 The audio file is loaded into memory in its entirety when the application starts, so be careful with large files.
 

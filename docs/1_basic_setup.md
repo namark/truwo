@@ -23,7 +23,7 @@ sudo apt install g++-7 -y
 
 ## Specific instruction for Windows
 
-1. Download [cygwin](https://www.cygwin.com).
+Download [cygwin](https://www.cygwin.com).<br />
 In the installer go "Next" until presented with package selection screen. There change view to full, using the search find packages `git, make, mingw64-x86_64-gcc-g++, mingw64-x86_64-SDL2` (or same with i686 if you want to build for 32bit systems) and mark them for installation by double clicking the entry in the New column, which will change from "Skip" to a specific version number. Proceed with the installation.
 
 ## Specific instruction for OSX
@@ -32,4 +32,5 @@ Throw all your money at it and pray to apple? ... erm, I mean all the same tools
 <br />
 <br />
 <br />
-[Compile and run](docs/2_compile_and_run.md)
+
+[Compile and run](2_compile_and_run.md)

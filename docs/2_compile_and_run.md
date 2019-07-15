@@ -36,7 +36,7 @@ You'll need to copy or clone the project into the home directory in cygwin. <br 
 Cygwin root is the folder you specified during installation. <br />
 All the commands below will need to be carried out in cygwin terminal that should have a shortcut on the desktop. <br />
 The terminal will start in your home folder by default, so you can just clone the project right there (step 1 above).<br />
-<br />
+
 For some (probably very good) reason, MinGW would not be installed as default toolchain, so the compiler and the archiver will need to be specified manually before step 3:
 ```bash
 export CXX=x86_64-w64-mingw32-g++ # compiler variable
@@ -51,7 +51,6 @@ Before proceeding with step 5 there is the timeless problem of dlls to solve. Fo
 ```bash
 cp /usr/x86_64-w64-mingw32/sys-root/bin/*.dll ./out/
 ```
-<br />
 That's it! Here is an overview:
 ```bash
 git clone https://notabug.org/namark/melno
@@ -69,4 +68,4 @@ cp /usr/x86_64-w64-mingw32/sys-root/bin/*.dll ./out/
 <br />
 <br />
 
-[More on some of these makeshift tools](docs/3_more_on_tools.md)
+[More on some of these makeshift tools](3_more_on_tools.md)
