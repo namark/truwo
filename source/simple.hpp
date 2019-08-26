@@ -24,6 +24,7 @@ using ratio2 = rational<int2>;
 
 class initializer
 {
+	public:
 	graphical::initializer graphics;
 	interactive::initializer interactions;
 	musical::initializer music;

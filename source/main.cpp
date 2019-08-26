@@ -1,10 +1,10 @@
 // TODO; change time_display to digit_display(with parameterized digit count)
+// TODO: resizable window, fullscreen
 // TODO: web  build
 // TODO: android build
 // TODO: proper support for wav, and streaming audio from disk
 // TODO: more audio formats (mp3, ogg, flac ... would be cool to learn some ffmpeg here)
-// TODO: resizable window
-// TODO: full set of command line parameters (set time, autostart, loop, bg/fg color, window size/position, gui on/off, etc.)
+
 // TODO: quick count up/down by long press
 // TODO: treat the 3 number displays as single line for input (this is really hard to explain -_-)
 // TODO: progress bar at the bottom ( flashes when done )
@@ -15,7 +15,8 @@
 // TODO: more alarm settings with a visualization (alarm duration, included or excluded from next timer loop)
 // TODO: web version (file management)
 // TODO: android version (portrait layout, file management)
-//
+// TODO: full set of command line parameters (set time, autostart, loop, bg/fg color, window size/position, gui on/off, etc.)
+
 // TODO: functional tests with xdotool and parecord
 //		https://askubuntu.com/questions/60837/record-a-programs-output-with-pulseaudio
 //		https://ro-che.info/articles/2017-07-21-record-audio-linux
@@ -60,7 +61,7 @@ int main(int argc, const char** argv) try
 	}
 	if(fast_frametime >= slow_frametime)
 	{
-		std::fputs("fast frame(7th) time should be lower than slow_frametime(8th)", stderr);
+		std::fputs("fast frame time(7th) should be lower than slow frame time(8th)", stderr);
 		std::fputs("\n", stderr);
 		return -2;
 	}
@@ -217,6 +218,7 @@ int main(int argc, const char** argv) try
 	auto reset_current_timer = [&]()
 	{
 		music_playing = false;
+		init.graphics.screensaver.release_one();
 		device = nullptr;
 		current_timer = timer(current_timer.duration());
 	};
@@ -317,6 +319,7 @@ int main(int argc, const char** argv) try
 			if(!music_playing)
 			{
 				music_playing = true;
+				init.graphics.screensaver.keep_alive();
 				win.restore();
 				win.raise();
 				frametime = fast_frametime;
