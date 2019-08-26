@@ -2,10 +2,12 @@
 #define TIME_DISPLAY_H
 
 #include <cassert>
+#include <utility>
 #include "implementaion.h"
 #include "layout.h"
 #include "digits.h"
 
+template <size_t digit_count = 2>
 class time_display :
 	public i_movable_bounds<int2>,
 	public i_graphic,
@@ -13,7 +15,6 @@ class time_display :
 	public i_ui_object
 {
 	public:
-	using duration = std::chrono::steady_clock::duration;
 
 	time_display(int2 digit_size, int2 digit_spacing, graphical::color color);
 	virtual ~time_display() = default;
@@ -33,8 +34,10 @@ class time_display :
 	std::vector<callback> on_input;
 
 	private:
+	template <size_t... I>
+	time_display(int2 digit_size, int2 digit_spacing, graphical::color color, std::index_sequence<I...>);
 	graphical::color color;
-	std::array<digit_bitmap, 2> digits;
+	std::array<digit_bitmap, digit_count> digits;
 	bounds_layout layout;
 	int set_value;
 	int input_value;

@@ -113,7 +113,7 @@ int main(int argc, const char** argv) try
 	auto digit_spacing = int2::i(5);
 	auto make_time_display = [&]() -> auto&
 	{
-		auto& display = ui.make<time_display>(digit_size, digit_spacing, fg_color);
+		auto& display = ui.make<time_display<>>(digit_size, digit_spacing, fg_color);
 		return display;
 	};
 
