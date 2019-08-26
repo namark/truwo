@@ -1,4 +1,3 @@
-// TODO; change time_display to digit_display(with parameterized digit count)
 // TODO: resizable window, fullscreen
 // TODO: web  build
 // TODO: android build
@@ -25,6 +24,7 @@
 #include <sstream>
 #include <iomanip>
 #include <cerrno>
+#include <iostream>
 
 #include "simple.hpp"
 #include "plain_button.h"
@@ -32,7 +32,7 @@
 #include "digits.h"
 #include "ui_factory.hpp"
 #include "utils.hpp"
-#include "time_display.h"
+#include "digit_display.h"
 #include "timer.h"
 
 const std::chrono::steady_clock::duration max_duration = 99h + 59min + 59s;
@@ -113,7 +113,7 @@ int main(int argc, const char** argv) try
 	auto digit_spacing = int2::i(5);
 	auto make_time_display = [&]() -> auto&
 	{
-		auto& display = ui.make<time_display<>>(digit_size, digit_spacing, fg_color);
+		auto& display = ui.make<digit_display<>>(digit_size, digit_spacing, fg_color);
 		return display;
 	};
 

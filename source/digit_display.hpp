@@ -2,7 +2,7 @@
 #define TIME_DISPLAY_HPP
 
 #include <cassert>
-#include "time_display.h"
+#include "digit_display.h"
 #include "utils.hpp"
 
 // what is integer exp that you don't have it, eh? c++, eh? -_-
@@ -16,15 +16,15 @@ constexpr int int_pow(int i, int p)
 }
 
 template <size_t digit_count>
-time_display<digit_count>::
-	time_display(int2 digit_size, int2 digit_spacing, graphical::color color) :
-		time_display(
+digit_display<digit_count>::
+	digit_display(int2 digit_size, int2 digit_spacing, graphical::color color) :
+		digit_display(
 			digit_size, digit_spacing, color, std::make_index_sequence<digit_count>())
 {}
 
 template <size_t digit_count>
 template <size_t... I>
-time_display<digit_count>::time_display(int2 digit_size, int2 digit_spacing, graphical::color color, std::index_sequence<I...>) :
+digit_display<digit_count>::digit_display(int2 digit_size, int2 digit_spacing, graphical::color color, std::index_sequence<I...>) :
 	ui_element(layout),
 	color(color),
 	digits{ (void(I),
@@ -41,7 +41,7 @@ time_display<digit_count>::time_display(int2 digit_size, int2 digit_spacing, gra
 }
 
 template <size_t digit_count>
-void time_display<digit_count>::set(int value) noexcept
+void digit_display<digit_count>::set(int value) noexcept
 {
 	assert(0 <= value && value < int_pow(10, digit_count));
 	set_value = value;
@@ -53,26 +53,26 @@ void time_display<digit_count>::set(int value) noexcept
 }
 
 template <size_t digit_count>
-time_display<digit_count>& time_display<digit_count>::operator+=(const int2& offset)
+digit_display<digit_count>& digit_display<digit_count>::operator+=(const int2& offset)
 {
 	layout += offset;
 	return *this;
 }
 
 template <size_t digit_count>
-int2 time_display<digit_count>::lower() const
+int2 digit_display<digit_count>::lower() const
 {
 	return layout.lower();
 }
 
 template <size_t digit_count>
-int2 time_display<digit_count>::upper() const
+int2 digit_display<digit_count>::upper() const
 {
 	return layout.upper();
 }
 
 template <size_t digit_count>
-void time_display<digit_count>::draw(const graphical::surface& target)
+void digit_display<digit_count>::draw(const graphical::surface& target)
 {
 	if(ui_element::focus())
 	{
@@ -85,7 +85,7 @@ void time_display<digit_count>::draw(const graphical::surface& target)
 }
 
 template <size_t digit_count>
-void time_display<digit_count>::update(const interactive::event& event) noexcept
+void digit_display<digit_count>::update(const interactive::event& event) noexcept
 {
 	ui_element::update(event);
 
@@ -189,7 +189,7 @@ void time_display<digit_count>::update(const interactive::event& event) noexcept
 }
 
 template <size_t digit_count>
-void time_display<digit_count>::focus(bool value) noexcept
+void digit_display<digit_count>::focus(bool value) noexcept
 {
 	ui_element::focus(value);
 

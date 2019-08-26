@@ -8,7 +8,7 @@
 #include "digits.h"
 
 template <size_t digit_count = 2>
-class time_display :
+class digit_display :
 	public i_movable_bounds<int2>,
 	public i_graphic,
 	public ui_element,
@@ -16,12 +16,12 @@ class time_display :
 {
 	public:
 
-	time_display(int2 digit_size, int2 digit_spacing, graphical::color color);
-	virtual ~time_display() = default;
+	digit_display(int2 digit_size, int2 digit_spacing, graphical::color color);
+	virtual ~digit_display() = default;
 
 	void set(int value) noexcept;
 
-	time_display& operator+=(const int2&) override;
+	digit_display& operator+=(const int2&) override;
 	int2 lower() const override;
 	int2 upper() const override;
 
@@ -30,12 +30,12 @@ class time_display :
 
 	void focus(bool) noexcept override;
 
-	using callback = std::function<void(time_display&, int old_value, int new_value)>;
+	using callback = std::function<void(digit_display&, int old_value, int new_value)>;
 	std::vector<callback> on_input;
 
 	private:
 	template <size_t... I>
-	time_display(int2 digit_size, int2 digit_spacing, graphical::color color, std::index_sequence<I...>);
+	digit_display(int2 digit_size, int2 digit_spacing, graphical::color color, std::index_sequence<I...>);
 	graphical::color color;
 	std::array<digit_bitmap, digit_count> digits;
 	bounds_layout layout;
