@@ -38,7 +38,7 @@ void lowlight(const graphical::surface& target, graphical::color color, range2D 
 		auto dimension = i.begin();
 		while(dimension != i.end())
 		{
-			writer.set(static_cast<uint32_t>((color)), i);
+			writer.set(color, i);
 			dimension = support::advance_vector(i, bounds.lower(), bounds.upper(), dim);
 		}
 	}, target.pixels());
