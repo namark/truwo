@@ -275,6 +275,12 @@ int main(int argc, const char** argv) try
 				[&done](quit_request) { done = true; },
 				[&](window_minimized) { frametime = slow_frametime; },
 				[&](window_restored) { frametime = fast_frametime; },
+
+				// TODO: remove? or keep as general failsafe?
+				// this is a workaround for restored event not firing in SDL 2.0.10
+				// https://bugzilla.libsdl.org/show_bug.cgi?id=4821
+				[&](mouse_down) { frametime = fast_frametime; },
+
 				[](auto) { }
 			}, *event);
 
