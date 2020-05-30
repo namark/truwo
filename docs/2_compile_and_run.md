@@ -1,7 +1,7 @@
 # Compilation and start
 
 ## Common for all GNU systems
-1. For the sake of completeness - obtain the project and change directory to it's root:
+1. For the sake of completeness - obtain the project and change directory to its root:
 ```bash
 git clone https://notabug.org/namark/melno
 cd melno

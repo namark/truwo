@@ -3,11 +3,11 @@
 Required software:
 1. git, to fetch some dependencies
 2. GNU stuff (make, coreutils, findutils, binutils)
-2. C++ 17 compliant compiler
-3. SDL 2.0 runtime and development libraries
+3. C++ 17 compliant compiler
+4. SDL 2.0 runtime and development libraries
 
 ## Specific instruction for Debian based distributions
-(Something similar should work on you favorite system/package manager as well. Know your distro!)
+(Something similar should work on your favorite system/package manager as well. Know your distro!)
 
 1. Install git, GNU stuff, compiler collection, SDL2
 ```bash
