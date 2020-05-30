@@ -30,7 +30,7 @@ void lowlight(const graphical::surface& target, graphical::color color, range2D 
 		return; // we are off target
 
 	// unless there is no distance to travel, make sure to step forward
-	assert( (bounds.upper() - bounds.lower() == int2::zero()) | (dim > int2::zero()) );
+	assert(to_conjunction( (bounds.upper() - bounds.lower() == int2::zero()) | (dim > int2::zero()) ));
 
 	std::visit([&](auto writer)
 	{

@@ -30,7 +30,7 @@ class bitmap : public movable_bounds, public i_graphic, public i_ui_object
 		const auto cell_size = (bounds.upper() - bounds.lower())/size;
 
 		// alignment logic
-		assert( (align == -int2::one()) | (align == int2::zero()) | (align == int2::one()) );
+		assert(to_conjunction( (align == -int2::one()) | (align == int2::zero()) | (align == int2::one()) ));
 		const int2 lower_mask (align == -int2::one());
 		const auto upper_mask = 1 - lower_mask;
 		const auto align_offset = cell_size * align * (lower_mask * padding.lower() + upper_mask * padding.upper());
