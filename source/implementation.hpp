@@ -1,6 +1,6 @@
-#ifndef IMPLEMENTAITON_HPP
-#define IMPLEMENTAITON_HPP
-#include "implementaion.h"
+#ifndef IMPLEMENTATION_HPP
+#define IMPLEMENTATION_HPP
+#include "implementation.h"
 
 template <typename Derived>
 Derived& focus_group<Derived>::drv() noexcept

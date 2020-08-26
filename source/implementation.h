@@ -1,12 +1,10 @@
-#ifndef IMPLEMENTAION_HPP
-#define IMPLEMENTAION_HPP
+#ifndef IMPLEMENTATION_H
+#define IMPLEMENTATION_H
 
 #include <functional>
 #include <vector>
 #include "interface.hpp"
 #include "simple.hpp"
-
-//TODO: implementaion? come oooon... rename -_-
 
 class movable_bounds : public i_movable_bounds<int2>
 {

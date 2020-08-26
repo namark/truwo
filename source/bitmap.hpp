@@ -1,7 +1,7 @@
 #ifndef BITMAP_HPP
 #define BITMAP_HPP
 
-#include "implementaion.h"
+#include "implementation.h"
 #include "utils.hpp"
 
 template <int width, int height>
