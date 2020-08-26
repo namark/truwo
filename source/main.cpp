@@ -1,24 +1,3 @@
-// TODO: resizable window, fullscreen
-// TODO: web  build
-// TODO: android build
-// TODO: proper support for wav, and streaming audio from disk
-// TODO: more audio formats (mp3, ogg, flac ... would be cool to learn some ffmpeg here)
-
-// TODO: quick count up/down by long press
-// TODO: treat the 3 number displays as single line for input (this is really hard to explain -_-)
-// TODO: progress bar at the bottom ( flashes when done )
-// TODO: loop toggle
-// TODO: topbar with recent set timers, with option to pin, displays mini ui(set time and progress bar)
-// TODO: run several timers at the same time
-// TODO: allow separate alarm sounds per timer, and mix the audio
-// TODO: more alarm settings with a visualization (alarm duration, included or excluded from next timer loop)
-// TODO: web version (file management)
-// TODO: android version (portrait layout, file management)
-// TODO: full set of command line parameters (set time, autostart, loop, bg/fg color, window size/position, gui on/off, etc.)
-
-// TODO: functional tests with xdotool and parecord
-//		https://askubuntu.com/questions/60837/record-a-programs-output-with-pulseaudio
-//		https://ro-che.info/articles/2017-07-21-record-audio-linux
 #include <atomic>
 #include <cstdio>
 #include <sstream>
@@ -50,51 +29,39 @@ int main(int argc, const char** argv) try
 		? rgb_pixel::from(ston<rgb_pixel::int_type>(argv[6]))
 		: 0x000000_rgb;
 
-	const std::chrono::milliseconds fast_frametime (argc > 7 ? ston<unsigned>(argv[7]) : 33);
-	const std::chrono::milliseconds slow_frametime (argc > 8 ? ston<unsigned>(argv[8]) : 256);
+	const std::chrono::milliseconds frametime (argc > 7 ? ston<unsigned>(argv[7]) : 33);
 
 	if(main_color == second_color) // would be cool to have a smarter contrast check
 	{
-		std::fputs("foreground(5th) and background(6th) colors should differ", stderr);
+		std::fputs("foreground and background colors should differ", stderr);
 		std::fputs("\n", stderr);
 		return -1;
-	}
-	if(fast_frametime >= slow_frametime)
-	{
-		std::fputs("fast frame time(7th) should be lower than slow frame time(8th)", stderr);
-		std::fputs("\n", stderr);
-		return -2;
 	}
 
 	initializer init;
 	ui_factory ui;
 
-	auto frametime = fast_frametime;
-
 	std::string icon_string =
-		"---------" // "---------"
-		"---------" // "-+-----+-"
-		"-+-----+-" // "-++---++-"
-		"-++---++-" // "-+-+-+-+-"
-		"-+-+-+-+-" // "-+--+--+-"
-		"-+--+--+-" // "-+-----+-"
-		"-+-----+-" // "-+-----+-"
-		"---------" // "-+-----+-"
-		"---------" // "---------"
+		"---------"  // "---------"
+		"+++++++++"  // "-+++++++-"
+		"--+------"  // "----+----"
+		"--+-+---+"  // "----+----"
+		"--+-+-+-+"  // "----+----"
+		"--+-+-+-+"  // "----+----"
+		"--+-+-+-+"  // "----+----"
+		"--+-+++++"  // "----+----"
+		"---------"  // "---------"
 	;
 	surface icon_small(reinterpret_cast<surface::byte*>(icon_string.data()), {9,9},
 		pixel_format(pixel_format::type::index8));
 	icon_small.format().palette()->set_color('+', main_color);
 	icon_small.format().palette()->set_color('-', 0x0_rgba);
 
-	std::ostringstream title;
-	title << std::setfill('0');
-
 	auto music = argc > 1
 		?  argv[1][0] != '\0' ? std::optional<musical::wav>(argv[1]) : std::nullopt
-		: std::optional<musical::wav>("./melno.wav");
+		: std::optional<musical::wav>("./truwo.wav");
 
-	graphical::software_window win("melno", {400,200});
+	graphical::software_window win("truwo", {400,400}, graphical::window::flags::resizable);
 	auto fg_color = win.surface().format().color(main_color);
 	auto bg_color = win.surface().format().color(second_color);
 
@@ -118,29 +85,28 @@ int main(int argc, const char** argv) try
 	};
 
 	std::atomic<bool> music_playing = false;
-	auto player = [&music_playing, &music, i = loop(music->buffer())](auto& device, auto buffer) mutable
+	auto player = [&music_playing, &music, i = music->buffer().begin()](auto& device, auto buffer) mutable
 	{
 		if(!music_playing)
 		{
-			i.reset();
 			std::fill(buffer.begin(), buffer.end(), device.silence());
 			return;
 		}
 
-		std::copy_n(i, buffer.size, buffer.begin());
+		const auto size = std::min<size_t>(buffer.size, music->buffer().end() - i);
+		std::copy_n(i, size, buffer.begin());
 
-		i += buffer.size;
+		i += size;
 		if(i == music->buffer().end())
+		{
+			i = music->buffer().begin();
 			music_playing = false;
+		}
 	};
 	using music_device = musical::device_with_callback<decltype(player)>;
 	std::unique_ptr<music_device> device = nullptr;
 
-	auto current_timer = timer{
-		std::chrono::hours(argc > 2 ? ston<unsigned>(argv[2]) : 0) +
-		std::chrono::minutes(argc > 3 ? ston<unsigned>(argv[3]) : 0) +
-		std::chrono::seconds(argc > 4 ? ston<unsigned>(argv[4]) : 0),
-	};
+	auto current_timer = timer{0ms};
 	current_timer = timer(clamp(current_timer.duration(), min_duration, max_duration));
 
 	auto& hours_display = make_time_display();
@@ -185,35 +151,30 @@ int main(int argc, const char** argv) try
 	});
 
 
-	focus_group main_focus_group{};
+	auto& stop_button = make_control_button();
+	auto& down_button = make_control_button();
+	focus_vector button_focus_group{
+		{&stop_button, &down_button} };
+
+	focus_vector main_focus_group
+	{{
+		&hours_display,
+		&minutes_display,
+		&seconds_display,
+		&button_focus_group
+	}};
+
 	auto focus_handler = [&main_focus_group](auto& element)
 	{
-		main_focus_group.focus(&element);
+		main_focus_group.focus_on(&element);
 	};
 
-	main_focus_group.elements.push_back(&hours_display);
-	main_focus_group.elements.push_back(&minutes_display);
-	main_focus_group.elements.push_back(&seconds_display);
+	stop_button.on_press.push_back(focus_handler);
+	down_button.on_press.push_back(focus_handler);
 	hours_display.on_press.push_back(focus_handler);
 	minutes_display.on_press.push_back(focus_handler);
 	seconds_display.on_press.push_back(focus_handler);
 
-	std::optional<timer::clock::time_point> countup_point = std::nullopt;
-	auto& up_button = make_control_button();
-	auto& stop_button = make_control_button();
-	auto& down_button = make_control_button();
-
-	main_focus_group.elements.push_back(&up_button);
-	main_focus_group.elements.push_back(&stop_button);
-	main_focus_group.elements.push_back(&down_button);
-	up_button.on_press.push_back(focus_handler);
-	stop_button.on_press.push_back(focus_handler);
-	down_button.on_press.push_back(focus_handler);
-
-	up_button.on_click.push_back([&](auto&)
-	{
-		countup_point = timer::clock::now() - current_timer.remaining_duration();
-	});
 
 	auto reset_current_timer = [&]()
 	{
@@ -231,16 +192,12 @@ int main(int argc, const char** argv) try
 		}
 		else
 		{
-			if(countup_point)
-				countup_point = std::nullopt;
 			current_timer.pause();
 		}
 	});
 
 	down_button.on_click.push_back([&](auto&)
 	{
-		if(countup_point)
-			countup_point = std::nullopt;
 		current_timer.resume();
 	});
 
@@ -255,7 +212,7 @@ int main(int argc, const char** argv) try
 		stop_button_hold.pause();
 	});
 
-	bounds_layout button_layout ({&up_button, &stop_button, &down_button}, int2::j(5));
+	bounds_layout button_layout ({&stop_button, &down_button}, int2::j(5));
 	button_layout.update();
 	button_layout += int2::j() * center(button_layout, timer_layout);
 
@@ -273,45 +230,50 @@ int main(int argc, const char** argv) try
 		{
 			std::visit(support::overloaded{
 				[&done](quit_request) { done = true; },
-				[&](window_minimized) { frametime = slow_frametime; },
-				[&](window_restored) { frametime = fast_frametime; },
+				[&win](window_resized)
+				{
+					win.update_surface();
+				},
+				[&win](window_size_changed)
+				{
+					win.update_surface();
+				},
+				[&main_focus_group](const mouse_down&)
+				{
+					main_focus_group.drop_focus();
+				},
+				[&main_focus_group](const key_pressed& e)
+				{
+					if(e.data.keycode == keycode::tab)
+					{
+						auto direction =
+							pressed(scancode::rshift) ||
+							pressed(scancode::lshift)
+								? i_focusable::prev
+								: i_focusable::next
+						;
 
-				// TODO: remove? or keep as general failsafe?
-				// this is a workaround for restored event not firing in SDL 2.0.10
-				// https://bugzilla.libsdl.org/show_bug.cgi?id=4821
-				[&](mouse_down) { frametime = fast_frametime; },
+						if(!main_focus_group.focus(direction))
+						{
+							main_focus_group.drop_focus();
+							main_focus_group.focus(direction);
+						}
 
+					}
+				},
 				[](auto) { }
 			}, *event);
 
-			main_focus_group.pre_update(*event);
 			for(auto&& interactive : ui.interactives())
 				interactive->update(*event);
-			main_focus_group.post_update(*event);
 		}
 
-		if(frametime == fast_frametime)
-		{
-			fill(win.surface(), bg_color);
+		fill(win.surface(), bg_color);
 
-			for(auto&& graphic : ui.graphics())
-				graphic->draw(win.surface());
-			win.update();
-		}
+		for(auto&& graphic : ui.graphics())
+			graphic->draw(win.surface());
+		win.update();
 
-		{ using namespace std::chrono;
-			auto [h, m, s] =
-				split_duration<hours, minutes, seconds>(current_timer.remaining_duration());
-			title <<
-				std::setw(2) << h.count() <<  ":" <<
-				std::setw(2) << m.count() << ":" <<
-				std::setw(2) << s.count() << " -- melno";
-			win.title(title.str().c_str());
-			title.str("");
-			title.clear();
-		}
-
-		up_button.enable(!music_playing && !countup_point.has_value());
 		down_button.enable(!music_playing && current_timer.paused());
 		hours_display.enable(!music_playing);
 		minutes_display.enable(!music_playing);
@@ -328,8 +290,7 @@ int main(int argc, const char** argv) try
 				init.graphics.screensaver.keep_alive();
 				win.restore();
 				win.raise();
-				frametime = fast_frametime;
-				main_focus_group.focus(&stop_button);
+				main_focus_group.focus_on(&stop_button);
 				if(music)
 				{
 					device = std::make_unique<music_device>(
@@ -341,9 +302,6 @@ int main(int argc, const char** argv) try
 			}
 			current_timer.pause();
 		}
-
-		if(countup_point)
-			current_timer = timer(clamp(timer::clock::now() - *countup_point, min_duration, max_duration));
 
 		auto duration = current_timer.remaining_duration();
 		hours_display.set(extract_duration<std::chrono::hours>(duration).count());

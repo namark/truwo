@@ -50,14 +50,18 @@ class i_focusable
 	protected:
 	~i_focusable() = default;
 	public:
-	virtual void focus(bool) = 0;
-	virtual bool focus() const = 0;
-};
 
-class i_interactive_focusable : public i_interactive, public i_focusable
-{
-	protected:
-	~i_interactive_focusable() = default;
+	enum direction
+	{
+		prev = -1,
+		self = 0,
+		next = 1
+	};
+
+	virtual bool focus() const = 0;
+	virtual void drop_focus() = 0;
+	virtual bool focus(direction) = 0;
+	virtual bool focus_on(i_focusable*) = 0;
 };
 
 class i_ui_object

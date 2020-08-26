@@ -11,7 +11,7 @@ override LDLIBS		+= -lSDL2main -lSDL2 -lpthread
 PREFIX	:= $(DESTDIR)/usr/local
 BINDIR	:= $(PREFIX)/bin
 
-NAME := melno
+NAME := truwo
 
 SRCDIR	:= ./source
 TEMPDIR	:= temp

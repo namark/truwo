@@ -189,15 +189,11 @@ void digit_display<digit_count>::update(const interactive::event& event) noexcep
 }
 
 template <size_t digit_count>
-void digit_display<digit_count>::focus(bool value) noexcept
+void digit_display<digit_count>::drop_focus() noexcept
 {
-	ui_element::focus(value);
-
-	if(!ui_element::focus())
-	{
-		input = false;
-		input_value = 0;
-	}
+	ui_element::drop_focus();
+	input = false;
+	input_value = 0;
 }
 
 #endif /* end of include guard */

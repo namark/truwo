@@ -28,7 +28,7 @@ class digit_display :
 	void draw(const graphical::surface&) override;
 	void update(const interactive::event& event) noexcept override;
 
-	void focus(bool) noexcept override;
+	void drop_focus() noexcept override;
 
 	using callback = std::function<void(digit_display&, int old_value, int new_value)>;
 	std::vector<callback> on_input;

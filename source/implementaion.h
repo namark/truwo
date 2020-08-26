@@ -6,6 +6,8 @@
 #include "interface.hpp"
 #include "simple.hpp"
 
+//TODO: implementaion? come oooon... rename -_-
+
 class movable_bounds : public i_movable_bounds<int2>
 {
 	public:
@@ -24,7 +26,7 @@ class movable_bounds : public i_movable_bounds<int2>
 
 };
 
-class ui_element : public i_interactive_focusable
+class ui_element : public i_interactive, public i_focusable
 {
 	public:
 	enum class state
@@ -49,35 +51,55 @@ class ui_element : public i_interactive_focusable
 	std::vector<callback> on_press;
 	std::vector<callback> on_release;
 
-	void focus(bool) noexcept override;
+	void drop_focus() noexcept override;
+	virtual void gain_focus() noexcept;
 	bool focus() const noexcept override;
+	bool focus_on(i_focusable*) noexcept override;
+	bool focus(direction) noexcept override;
 
 	protected:
 	explicit ui_element(const i_bounds<int2>&);
 	state current;
 
 	private:
+	// TODO: polymorphic bounds are clearly useless here, can just CRTP this
 	const i_bounds<int2>& bounds_proxy;
 	bool _focus;
 };
 
-class focus_group
+template <typename Derived>
+class focus_group : public i_focusable
+{
+	public:
+	bool focus() const noexcept override;
+	void drop_focus() noexcept override;
+	bool focus_on(i_focusable*) noexcept override;
+	bool focus(direction) override;
+
+	private:
+	Derived& drv() noexcept;
+	const Derived& drv() const noexcept;
+	bool focused_in_range() const noexcept;
+};
+
+class focus_vector : public focus_group<focus_vector>
 {
 	public:
 	using container = std::vector<i_focusable*>;
 
-	void focus();
-	void drop_focus();
-	void focus(size_t index);
-	void focus(i_focusable*);
 
-	void pre_update(const interactive::event&);
-	void post_update(const interactive::event&);
+	focus_vector(container elements);
 
-	container elements;
+	protected:
+	auto& focus_range() noexcept;
+	auto& focused() noexcept;
+	const auto& focus_range() const noexcept;
+	const auto& focused() const noexcept;
+	friend class focus_group<focus_vector>;
+
 	private:
-	i_focusable* focused_element = nullptr;
-	bool expecting_focus = false;
+	container elements;
+	container::iterator focused_element;
 };
 
 #endif /* end of include guard */
