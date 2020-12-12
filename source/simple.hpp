@@ -9,6 +9,7 @@
 #include "simple/graphical.hpp"
 #include "simple/interactive.hpp"
 #include "simple/musical.hpp"
+#include "simple/motion.hpp"
 
 using namespace simple;
 

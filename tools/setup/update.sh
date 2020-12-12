@@ -14,6 +14,10 @@ cd libsimple_geom
 git pull -r
 cd ..
 
+cd libsimple_motion
+git pull -r
+cd ..
+
 cd libsimple_sdlcore
 git pull -r
 cd ..
