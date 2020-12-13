@@ -35,6 +35,7 @@ class ui_element : public i_interactive, public i_focusable
 		disabled
 	};
 
+	ui_element(ui_element&) = delete; // TODO: remove, when bounds_proxy is replaced with CRTP, meanwhile, copy is dangerous
 	virtual ~ui_element() = default;
 
 	void update(const interactive::event&) noexcept override;
@@ -86,7 +87,12 @@ class focus_vector : public focus_group<focus_vector>
 	using container = std::vector<i_focusable*>;
 
 
-	focus_vector(container elements);
+	explicit focus_vector(container elements);
+
+	container extract() &&
+	{
+		return std::move(elements);
+	}
 
 	protected:
 	auto& focus_range() noexcept;

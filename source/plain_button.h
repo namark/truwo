@@ -7,7 +7,8 @@ class plain_button :
 	public i_ui_object
 {
 	public:
-	explicit plain_button(const plain_button&) = default;
+	// TODO: add when ui_element is copyable
+	// explicit plain_button(const plain_button&) = default;
 	plain_button(graphical::color color, range2D bounds);
 	virtual void draw(const graphical::surface&) override;
 	virtual void update(const interactive::event&) noexcept override;

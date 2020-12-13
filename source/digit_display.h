@@ -38,7 +38,7 @@ class digit_display :
 	digit_display(int2 digit_size, int2 digit_spacing, graphical::color color, std::index_sequence<I...>);
 	graphical::color color;
 	std::array<digit_bitmap, digit_count> digits;
-	bounds_layout layout;
+	bounds_layout layout; // TODO: unnecessary self reference, wrecks the copy (along with similar thing in ui_element)
 	int set_value;
 	int input_value;
 	bool input;
