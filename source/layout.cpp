@@ -35,6 +35,9 @@ class double_deref_itr
 		return tmp;
 	}
 
+	double_deref_itr operator+(int i) noexcept { return {itr + i}; }
+	double_deref_itr operator-(int i) noexcept { return {itr - i}; }
+
 	auto&& operator*() { return *(*itr); }
 	bool operator==(double_deref_itr other) { return itr == other.itr; }
 	bool operator!=(double_deref_itr other) { return !(*this == other); }
@@ -45,7 +48,7 @@ range2D bounds_layout::update()
 {
 	layout_bounds(double_deref_itr{elements.begin()}, double_deref_itr{elements.end()}, spacing);
 
-	// invalid tange, returned for empty layout
+	// invalid range, returned for empty layout
 	bounds = invalid_range;
 	for(auto&& element : elements)
 	{

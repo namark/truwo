@@ -20,6 +20,7 @@ int2 select_corner(const Range& rng, int2 direction) noexcept
 template <typename ForwardItr>
 constexpr void layout_bounds(ForwardItr begin, ForwardItr end, const int2& spacing)
 {
+	assert(begin != end);
 	const auto mask = int2(spacing != int2::zero());
 	const auto corner = signum(spacing);
 	for(auto prev = begin++; begin != end; ++begin, ++prev)
