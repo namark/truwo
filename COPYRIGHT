@@ -1,12 +1,11 @@
 /*
-	melno - simple little monochrome countdown timer
-	https://notabug.org/namark/melno
-	https://git.sr.ht/~namark/melno
-	https://git.qoto.org/namark/melno
-	https://gitlab.com/namark/melno
-	https://github.com/namark/melno
+	truwo - simple exercise timer
+	https://notabug.org/namark/truwo
+	https://git.sr.ht/~namark/truwo
+	https://git.qoto.org/namark/truwo
+	https://github.com/namark/truwo
 
-	Copyright (C) 2017-2020 respective authors/contributors
+	Copyright (C) 2020-2021 respective authors/contributorsZ
 
 	This program is free software: you can redistribute it and/or modify
 	it under the terms of the GNU General Public License as published by

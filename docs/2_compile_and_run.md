@@ -3,8 +3,8 @@
 ## Common for all GNU systems
 1. For the sake of completeness - obtain the project and change directory to its root:
 ```bash
-git clone https://notabug.org/namark/melno
-cd melno
+git clone https://notabug.org/namark/truwo
+cd truwo
 ```
 
 2. If you had to manually install the c++ compiler it's like not the default one, so will need to manually specify it for `make`:
@@ -25,7 +25,7 @@ make
 
 5. After compilation the executable file will be created in the `out` folder. You can run it like so:
 ```bash
-./out/melno ""
+./out/truwo ""
 ```
 It can be used as is, or installed system wide using `make install` (or `checkinstall` on Debian based systems). `make unisntall` will uninstall it (use package manager in case of `checkinstall`).
 
@@ -53,15 +53,15 @@ cp /usr/x86_64-w64-mingw32/sys-root/bin/*.dll ./out/
 ```
 That's it! Here is an overview:
 ```bash
-git clone https://notabug.org/namark/melno
-cd melno
+git clone https://notabug.org/namark/truwo
+cd truwo
 export CXX=x86_64-w64-mingw32-g++
 export AR=x86_64-w64-mingw32-ar
 ./tools/setup/init.sh
 export CXXFLAGS="-DSDL_MAIN_HANDLED"
 make
 cp /usr/x86_64-w64-mingw32/sys-root/mingw/bin/*.dll ./out/
-./out/melno ""
+./out/truwo ""
 ```
 
 <br />
