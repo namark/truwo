@@ -11,7 +11,6 @@
 #include "utils.hpp"
 #include "digit_display.h"
 #include "timer.h"
-#include "simple/support/debug.hpp"
 
 const std::chrono::steady_clock::duration max_duration = 99h + 59min + 59s;
 const std::chrono::steady_clock::duration min_duration{};
