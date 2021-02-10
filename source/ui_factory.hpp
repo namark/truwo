@@ -11,6 +11,14 @@
 template <typename... Interfaces>
 class ui_shop;
 
+template <typename Base, typename... Interfaces>
+class pointer_interface;
+
+// TODO: is lists of components, so call components
+// specify types of components
+// component type is either a value type or pointer_interface
+// value type just created and stored in appropriate vector
+// pointer_interface handled like below
 template <typename Type, typename... Interfaces>
 class ui_factory
 {
@@ -32,6 +40,7 @@ class ui_factory
 		return raw;
 	}
 
+	// TODO: return a range
 	template <typename Interface>
 	const auto& get() const noexcept
 	{
@@ -69,11 +78,14 @@ class ui_factory
 	friend class ui_shop<Type, Interfaces...>;
 };
 
+
+// TODO: groups components into entities, so call entities
 template <typename... Interfaces>
 class ui_shop
 {
 	public:
 
+	// TODO: rename reciept to entity
 	using receipt_id_t = unsigned;
 
 	ui_shop(ui_factory<Interfaces...> supplier) :
@@ -81,6 +93,7 @@ class ui_shop
 	{
 	}
 
+	// TODO: rename order to entity, rename goods to components
 	template <typename Goods>
 	struct order
 	{
@@ -95,6 +108,8 @@ class ui_shop
 		{}
 		friend class ui_shop;
 	};
+
+	// TODO: getter of components based on entity ids
 
 	template <typename Function>
 	order<std::invoke_result_t<
