@@ -12,4 +12,5 @@ lib/
 # local compilation flags
 .cxxflags
 .ldflags
+.ldlibs
 .clang
