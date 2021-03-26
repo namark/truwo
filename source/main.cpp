@@ -7,7 +7,7 @@
 #include "plain_button.h"
 #include "layout.h"
 #include "digits.h"
-#include "ui_factory.hpp"
+#include "ecs.hpp"
 #include "utils.hpp"
 #include "digit_display.h"
 #include "timer.h"
