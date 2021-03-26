@@ -35,7 +35,7 @@ class ui_element : public i_interactive, public i_focusable
 		disabled
 	};
 
-	ui_element(ui_element&) = delete; // TODO: remove, when bounds_proxy is replaced with CRTP, meanwhile, copy is dangerous
+	ui_element(const ui_element&) = delete; // TODO: remove, when bounds_proxy is replaced with CRTP, meanwhile, copy is dangerous
 	virtual ~ui_element() = default;
 
 	void update(const interactive::event&) noexcept override;
