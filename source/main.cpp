@@ -12,8 +12,8 @@
 #include "digit_display.h"
 #include "timer.h"
 
-const std::chrono::steady_clock::duration max_duration = 99h + 59min + 59s;
-const std::chrono::steady_clock::duration min_duration{};
+// const std::chrono::steady_clock::duration max_duration = 99h + 59min + 59s;
+// const std::chrono::steady_clock::duration min_duration{};
 
 struct nothing {};
 using movement = motion::movement<std::chrono::steady_clock::duration, nothing, nothing>;
@@ -98,12 +98,12 @@ int main(int argc, const char** argv) try
 	auto current_timer = motion::symphony{support::make_range(timers)};
 	bool paused = true;
 
-	ui_shop ui{ ui_factory<i_ui_object, i_graphic, i_interactive>{} };
+	entities ui{ components<object_interface<i_ui_object, i_graphic, i_interactive>>{} };
 
 	rect button_rect{win.size()/8 + int2{5,5}};
 	auto make_control_button = [&]() -> auto&
 	{
-		auto& button = ui.make<plain_button>(fg_color, button_rect);
+		auto& button = ui.emplace<plain_button>(fg_color, button_rect);
 		return button;
 	};
 	auto& stop_button = make_control_button();
@@ -135,14 +135,14 @@ int main(int argc, const char** argv) try
 	auto make_timer_ui = [&ui, &fg_color, &focus_handler]()
 	{
 		auto [hours_display, minutes_display, seconds_display] =
-			ui.make_order([&](auto& factory)
+			ui.make([&](auto& components)
 		{
 			int2 digit_size{40,100};
 			auto digit_spacing = int2::i(5);
 			auto make_time_display = [&]() -> auto&
 			{
 				// oof, template -_-
-				auto& display = factory.template make<digit_display<>>(digit_size, digit_spacing, fg_color);
+				auto& display = components.template emplace<digit_display<>>(digit_size, digit_spacing, fg_color);
 				return display;
 			};
 			return std::tie
@@ -151,7 +151,7 @@ int main(int argc, const char** argv) try
 				make_time_display(),
 				make_time_display()
 			);
-		}).goods;
+		}).components;
 
 		hours_display.on_press.push_back(focus_handler);
 		minutes_display.on_press.push_back(focus_handler);
@@ -161,9 +161,9 @@ int main(int argc, const char** argv) try
 		bounds_layout timer_layout(
 			{
 				&hours_display,
-				&ui.make<digit_bitmap>(digit[10], fg_color, separator_rect),
+				&ui.emplace<digit_bitmap>(digit[10], fg_color, separator_rect),
 				&minutes_display,
-				&ui.make<digit_bitmap>(digit[10], fg_color, separator_rect),
+				&ui.emplace<digit_bitmap>(digit[10], fg_color, separator_rect),
 				&seconds_display
 			},
 			int2::i(5)
@@ -274,14 +274,14 @@ int main(int argc, const char** argv) try
 						main_layout.elements.push_back(&layout);
 						main_layout.update();
 
-						h.on_input.push_back([&timer, &h](auto&&, int old_value, int new_value)
+						h.on_input.push_back([&timer](auto&&, int old_value, int new_value)
 						{
 							using namespace std::chrono;
 							auto offset = hours(new_value) - hours(old_value);
 							timer.reset();
 							timer.total = timer.total - timer.elapsed + offset;
 						});
-						m.on_input.push_back([&timer, &m](auto&&, int old_value, int new_value)
+						m.on_input.push_back([&timer](auto&&, int old_value, int new_value)
 						{
 							using namespace std::chrono;
 							auto new_minutes = minutes(new_value);
@@ -291,7 +291,7 @@ int main(int argc, const char** argv) try
 							timer.reset();
 							timer.total = timer.total - timer.elapsed + offset;
 						});
-						s.on_input.push_back([&timer, &s](auto&&, int old_value, int new_value)
+						s.on_input.push_back([&timer](auto&&, int old_value, int new_value)
 						{
 							using namespace std::chrono;
 							auto new_seconds = seconds(new_value);
@@ -307,7 +307,7 @@ int main(int argc, const char** argv) try
 				[](auto) { }
 			}, *event);
 
-			for(auto&& interactive : ui.get<i_interactive>())
+			for(auto&& interactive : ui.get<i_interactive*>())
 				interactive->update(*event);
 		}
 
@@ -331,7 +331,7 @@ int main(int argc, const char** argv) try
 
 		fill(win.surface(), bg_color);
 
-		for(auto&& graphic : ui.get<i_graphic>())
+		for(auto&& graphic : ui.get<i_graphic*>())
 			graphic->draw(win.surface());
 		win.update();
 

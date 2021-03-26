@@ -6,180 +6,281 @@
 
 #include "simple/support/tuple_utils.hpp"
 
-//TODO; nothing UI here anymore... also not really a factory and not really a shop... rename all the things!
 
 template <typename... Interfaces>
-class ui_shop;
+class entities;
+
+using simple::support::flatten_t;
+using simple::support::flatten_meta_operator;
+
+template <typename T, T Offset, T... Is>
+constexpr auto offset_sequence(std::integer_sequence<T,Is...>)
+{
+	return std::integer_sequence<T, (Is + Offset)...>{};
+}
+
+template <typename T, T begin, T size>
+constexpr auto make_integer_segment()
+{
+	return offset_sequence<T, begin>(std::make_integer_sequence<T, size>{});
+}
 
 template <typename Base, typename... Interfaces>
-class pointer_interface;
+// TODO: enable if is_abstract<Base> && has_virtual_destructor<Base>
+// and maybe is_abstract<Interfaces>, but not sure
+struct object_interface
+{
+	static constexpr size_t type_count = 1 + sizeof...(Interfaces);
+};
 
-// TODO: is lists of components, so call components
-// specify types of components
-// component type is either a value type or pointer_interface
-// value type just created and stored in appropriate vector
-// pointer_interface handled like below
-template <typename Type, typename... Interfaces>
-class ui_factory
+// TODO: parameterise std::unique_ptr and std::vector templates?? do I need that within a project or between projects, cause in a latter case can get away with using declaration in a configuration header
+template <typename... Types>
+class components
 {
 	public:
 
-	using type = Type;
+	using types = std::tuple<Types...>;
 
 	template <typename Element, typename ...Args>
-	Element& make(Args&&... args)
+	Element& emplace(Args&&... args)
 	{
-		using namespace simple::support;
-		auto& elements = tuple_car(interfaces);
-		auto element = std::make_unique<Element>(std::forward<Args>(args)...);
-		Element& raw = *element.get();
+		using simple::support::find_meta_t;
+		using simple::support::bind_meta;
+		using simple::support::tuple_car;
+		using simple::support::tuple_car_t;
+		using simple::support::tuple_tie_cdr;
+		using simple::support::tie_subtuple;
+		using simple::support::is_template_instance_v;
 
-		add_interface(raw, tuple_tie_cdr(interfaces));
+		using found = find_meta_t<bind_meta<is_component, size_constant<0>, Element>, types>;
+		static_assert(found::value != std::tuple_size_v<types>, "Element type not found in known component list.");
+		if constexpr (is_template_instance_v<object_interface, typename found::type>)
+		{
+			auto object_vectors = tie_subtuple(vectors,
+				make_integer_segment<size_t,
+					typename found::functor::binding{},
+					found::type::type_count
+				>()
+			);
 
-		elements.push_back(std::move(element)); // assuming raw pointer will not change... that's safe right?
-		return raw;
+			// get the tuple of the pointer interface and do this
+			auto& elements = tuple_car(object_vectors);
+
+			auto element = std::make_unique<Element>(std::forward<Args>(args)...);
+			Element& raw = *element.get();
+
+			add_interface(raw, tuple_tie_cdr(object_vectors));
+
+			elements.emplace_back(std::move(element)); // assuming raw pointer will not change... that's safe right?
+			return raw;
+		}
+		else
+		{
+			return std::get<found::value>().emplace_back(std::forward<Args>(args)...);
+		}
 	}
 
 	// TODO: return a range
-	template <typename Interface>
+	template <typename Component>
 	const auto& get() const noexcept
 	{
-		using ptr_t = std::conditional_t<std::is_same_v<Interface, type>,
-			  std::unique_ptr<type>,
-			  Interface*>;
-		return std::get<std::vector<ptr_t>>(interfaces);
+		using simple::support::find_v;
+		return std::get<find_v<Component, flat_types>>(vectors);
 	}
 
 	private:
 
-	template <typename... T>
-	using container = std::tuple< std::vector<T> ... >;
-	template <typename... T>
-	using container_ref = std::tuple< std::vector<T>& ... >;
+	template <typename T>
+	struct flatten_object_interface : flatten_meta_operator<T> {};
+	template <typename Base, typename... Interfaces>
+	struct flatten_object_interface<object_interface<Base, Interfaces...>>
+	{
+		using type = std::tuple<std::unique_ptr<Base>, Interfaces*...>;
+	};
 
-	container<
-		std::unique_ptr<type>,
-		Interfaces* ...
-	> interfaces;
+	template <size_t i> using size_constant = std::integral_constant<size_t, i>;
 
+	template <typename flat_index, typename T, typename Component>
+	struct is_component : std::is_same<T,Component>
+	{
+		using binding = size_constant<flat_index{} + !is_component::value>;
+	};
+
+	template <typename flat_index, typename T, typename Base, typename... Interfaces>
+	struct is_component<flat_index, T, object_interface<Base,Interfaces...>>
+	{
+		static constexpr bool value = std::is_base_of_v<Base, T>;
+		static constexpr size_t increment =
+			[](bool value)
+			{
+				return value
+					? 0
+					: object_interface<Base,Interfaces...>::type_count
+				;
+			}
+			(is_component::value);
+		using binding = size_constant<flat_index{} + increment>;
+	};
+
+	using flat_types = flatten_t<types,flatten_object_interface>;
+
+	template <typename Tuple, bool ref = false>
+	struct container { };
+
+	template <typename... Ts>
+	struct container<std::tuple<Ts...>, false>
+	{
+		using type = std::tuple<std::vector<Ts>...>;
+	};
+
+	template <typename... Ts>
+	struct container<std::tuple<Ts...>, true>
+	{
+		using type = std::tuple<std::vector<Ts>&...>;
+	};
+
+	template <typename Tuple>
+	using container_t = typename container<Tuple>::type;
+
+	template <typename... Ts>
+	using container_ref_t = typename container<std::tuple<Ts...>, true>::type;
 
 	template <typename El>
 	void add_interface(El&, std::tuple<>){}
 
 	template <typename El, typename In, typename... Rest>
-	void add_interface(El& element, container_ref<In*, Rest...> interfaces)
+	// NOTE: the shorthand can't deduce the In :/
+	// void add_interface(El& element, container_ref_t<In*, Rest...> interfaces)
+	void add_interface(El& element, std::tuple<std::vector<In*>&, std::vector<Rest>&...> interfaces)
 	{
-		using namespace simple::support;
+		using simple::support::tuple_car;
+		using simple::support::tuple_tie_cdr;
 		if constexpr (std::is_base_of_v<In, El>)
 			tuple_car(interfaces).push_back(&element);
 		add_interface(element,tuple_tie_cdr(interfaces));
 	}
 
-	friend class ui_shop<Type, Interfaces...>;
+	container_t<flat_types> vectors;
+
+	friend class entities<Types...>;
 };
 
-
-// TODO: groups components into entities, so call entities
-template <typename... Interfaces>
-class ui_shop
+template <typename... Components>
+class entities
 {
 	public:
 
-	// TODO: rename reciept to entity
-	using receipt_id_t = unsigned;
+	using entity_id_t = unsigned;
 
-	ui_shop(ui_factory<Interfaces...> supplier) :
-		supplier(std::move(supplier))
+	entities(components<Components...> components) :
+		_components(std::move(components))
 	{
 	}
 
-	// TODO: rename order to entity, rename goods to components
-	template <typename Goods>
-	struct order
+	template <typename T>
+	struct entity
 	{
 		public:
-		Goods goods;
-		const receipt_id_t receipt_id;
+		T components;
+		const entity_id_t entity_id;
 
 		private:
-		order(Goods&& goods, const receipt_id_t& receipt_id) :
-			goods(std::forward<Goods>(goods)),
-			receipt_id(receipt_id)
+		entity(T&& components, const entity_id_t& entity_id) :
+			components(std::forward<T>(components)),
+			entity_id(entity_id)
 		{}
-		friend class ui_shop;
+		friend class entities;
 	};
 
 	// TODO: getter of components based on entity ids
 
+	// TODO; eplace specific components to replace the make function below,
+	// component type1, args1
+	// component_type2, args2
+	// ...
+	// component_typeN, argsN
+	//
+	// maybe use a component helper template, so it looks like this:
+	// entities.emplace
+	// (
+	//   component<Type1>(args1...),
+	//   component<Type2>(args2...),
+	//   component<Type3>(args3...),
+	//   component<Type4>(args4...),
+	// );
+	// can also sfinae on this helper template.
+	//
+	// return a predictable entity object with references to all components and the id
+
 	template <typename Function>
-	order<std::invoke_result_t<
-		Function, ui_factory<Interfaces...>&>>
-	make_order(Function&& function)
+	entity<std::invoke_result_t<
+		Function, components<Components...>&>>
+	make(Function&& function)
 	{
 		using simple::support::transform;
 		auto size = transform([](const auto& x) {return x.size(); },
-			supplier.interfaces);
+			_components.vectors);
 
-		auto&& goods = std::invoke(
+		auto&& product = std::invoke(
 			std::forward<Function>(function),
-			supplier);
+			_components);
 
-		receipt_ids.push_back(get_id());
+		entity_ids.push_back(get_id());
 
-		transform([](auto& receipt_size, auto size, const auto& interface)
+		transform([](auto& entity_size, auto size, const auto& interface)
 		{
-			receipt_size.push_back(interface.size() - size);
-		}, receipt_sizes, size, supplier.interfaces);
+			entity_size.push_back(interface.size() - size);
+		}, entity_sizes, size, _components.vectors);
 
 		return
 		{
-			std::forward<decltype(goods)>(goods),
-			receipt_ids.back()
+			std::forward<decltype(product)>(product),
+			entity_ids.back()
 		};
 	};
 
 	template <typename Element, typename ...Args>
-	Element& make(Args&&... args)
+	Element& emplace(Args&&... args)
 	{
-		return make_order([&](auto& factory) -> auto&
+		return make([&](auto& components) -> auto&
 		{
 			return
-				factory.template make<Element>
+				components.template emplace<Element>
 					(std::forward<Args>(args)...);
-		}).goods;
+		}).components;
 	}
 
-	bool recycle(receipt_id_t id)
+	bool erase(entity_id_t id)
 	{
 		auto found = lower_bound
 		(
-			begin(receipt_ids),
-			end(receipt_ids),
+			begin(entity_ids),
+			end(entity_ids),
 			id
 		);
 
-		if(found != end(receipt_ids))
+		if(found != end(entity_ids))
 		{
 			using simple::support::transform;
-			transform([&](auto& interfaces, auto& sizes)
+			transform([&](auto& components, auto& sizes)
 			{
-				auto size_begin = begin(receipt_sizes);
+				auto size_begin = begin(entity_sizes);
 				auto found_size = size_begin +
-					(found - begin(receipt_ids));
+					(found - begin(entity_ids));
 
-				auto goods_begin = begin(interfaces) +
+				auto components_begin = begin(components) +
 					accumulate(size_begin, found_size, 0);
-				interfaces.erase
+				components.erase
 				(
-					goods_begin,
-					goods_begin + *found_size
+					components_begin,
+					components_begin + *found_size
 				);
 
 
 				sizes.erase(found_size);
-			}, supplier.interfaces, receipt_sizes);
+			}, _components.components, entity_sizes);
 
-			receipt_ids.erase(found);
+			entity_ids.erase(found);
 			return true;
 		}
 
@@ -188,28 +289,29 @@ class ui_shop
 
 	template <typename Interface>
 	decltype(auto) get() const noexcept
-	{ return supplier.template get<Interface>(); }
+	{ return _components.template get<Interface>(); }
 
 	private:
 
-	using receipt_size_t = unsigned short;
+	using entity_size_t = unsigned short;
 
-	receipt_id_t get_id()
+	entity_id_t get_id()
 	{
-		if(empty(receipt_ids))
+		if(empty(entity_ids))
 			return 0;
-		return receipt_ids.back() + 1; //TODO: what if we run out?
+		return entity_ids.back() + 1; //TODO: what if we run out?
 		// but it'll take like two hundred bajillion years D':
 		// yes, what will this program do after two hundred bajillion years of runtime?
 		// reuse ids? do I smell std::rotate? =)
 	}
 
-	ui_factory<Interfaces...> supplier;
-	std::vector<receipt_id_t> receipt_ids;
+	using components_t = components<Components...>;
+	components_t _components;
+	std::vector<entity_id_t> entity_ids;
 	std::array<
-		std::vector<receipt_size_t>,
-		sizeof...(Interfaces) + 1
-	> receipt_sizes;
+		std::vector<entity_size_t>,
+		std::tuple_size_v<typename components_t::flat_types>
+	> entity_sizes;
 };
 
 
